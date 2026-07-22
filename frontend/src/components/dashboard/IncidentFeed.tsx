@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -14,18 +14,57 @@ const fetchIncidents = async (): Promise<Incident[]> => {
 }
 
 export default function IncidentFeed() {
-  const { selectedIncidentId, setSelectedIncident } = useSentinelStore()
+  const { selectedIncidentId, setSelectedIncident, setActiveTab } = useSentinelStore()
+  const [feedTab, setFeedTab] = useState<'unresolved' | 'resolved'>('unresolved')
+  
   const { data: incidents, isLoading, error } = useQuery({
     queryKey: ['incidents'],
     queryFn: fetchIncidents,
   })
 
+  // Filter and sort newest first
+  const sortedIncidents = React.useMemo(() => {
+    if (!incidents) return []
+    const filtered = incidents.filter(i => 
+      feedTab === 'unresolved' ? i.status !== 'resolved' : i.status === 'resolved'
+    )
+    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  }, [incidents, feedTab])
+
+  // Auto-select latest incident on load or tab switch if none selected in this tab
+  React.useEffect(() => {
+    if (sortedIncidents.length > 0) {
+      const isSelectedInCurrentTab = sortedIncidents.some(i => i.id === selectedIncidentId)
+      if (!isSelectedInCurrentTab) {
+        setSelectedIncident(sortedIncidents[0].id)
+      }
+    } else {
+        setSelectedIncident(null)
+    }
+  }, [sortedIncidents, feedTab, setSelectedIncident, selectedIncidentId])
+
   return (
     <Card className="flex flex-col h-full bg-black/40 border-white/10">
-      <CardHeader>
-        <CardTitle className="text-lg">Live Incident Feed</CardTitle>
+      <CardHeader className="pb-3 border-b border-white/10">
+        <div className="flex justify-between items-center mb-2">
+           <CardTitle className="text-lg">Live Incident Feed</CardTitle>
+        </div>
+        <div className="flex gap-2 p-1 bg-white/5 rounded-md">
+           <button 
+             onClick={() => setFeedTab('unresolved')}
+             className={`flex-1 text-xs font-medium py-1.5 rounded transition-colors ${feedTab === 'unresolved' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+           >
+             Unresolved
+           </button>
+           <button 
+             onClick={() => setFeedTab('resolved')}
+             className={`flex-1 text-xs font-medium py-1.5 rounded transition-colors ${feedTab === 'resolved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+           >
+             Resolved
+           </button>
+        </div>
       </CardHeader>
-      <CardContent className="flex-1 p-0 overflow-y-auto">
+      <CardContent className="flex-1 p-0 overflow-y-auto custom-scrollbar">
         <div className="p-4 flex flex-col gap-4">
           {isLoading && (
             <div className="flex items-center justify-center p-8 text-white/50">
@@ -39,19 +78,21 @@ export default function IncidentFeed() {
             </div>
           )}
 
-          {incidents?.length === 0 && (
-            <div className="text-white/40 text-sm text-center p-8">
-              No incidents reported. All systems operational.
+          {sortedIncidents.length === 0 && !isLoading && (
+            <div className="text-white/40 text-sm text-center p-8 border border-dashed border-white/10 rounded-lg bg-white/5">
+              No {feedTab} incidents found.
             </div>
           )}
 
-          {incidents?.map(incident => (
+          {sortedIncidents.map(incident => (
             <div 
               key={incident.id} 
               onClick={() => setSelectedIncident(incident.id)}
               className={`p-4 rounded-lg border flex flex-col gap-2 cursor-pointer transition-all ${
                 selectedIncidentId === incident.id 
-                  ? 'bg-indigo-500/10 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)]' 
+                  ? feedTab === 'resolved' 
+                    ? 'bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                    : 'bg-indigo-500/10 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)]' 
                   : 'bg-white/5 border-white/10 hover:bg-white/10'
               }`}
             >

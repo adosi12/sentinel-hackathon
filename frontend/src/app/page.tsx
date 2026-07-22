@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Bell, Search, Activity, ShieldAlert, Cpu, CheckCircle2 } from 'lucide-react'
@@ -9,90 +9,134 @@ import AlertSimulator from '@/components/dashboard/AlertSimulator'
 import IncidentFeed from '@/components/dashboard/IncidentFeed'
 import ReasoningPanel from '@/components/dashboard/ReasoningPanel'
 import Header from '@/components/layout/Header'
+import InvestigationWizard from '@/components/dashboard/InvestigationWizard'
+import EmailPopup from '@/components/dashboard/EmailPopup'
+import { useSentinelStore } from '@/lib/store'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+
+const fetchIncidentDetails = async (id: string) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+  const response = await axios.get(`${apiUrl}/incidents/${id}`)
+  return response.data
+}
 
 export default function Home() {
+  const { selectedIncidentId, setSelectedIncident } = useSentinelStore()
+  const [investigatingIds, setInvestigatingIds] = useState<Set<string>>(new Set())
+
+  const { data: incident } = useQuery({
+    queryKey: ['incident', selectedIncidentId],
+    queryFn: () => fetchIncidentDetails(selectedIncidentId!),
+    enabled: !!selectedIncidentId,
+  })
+
+  const isInvestigating = incident ? investigatingIds.has(incident.id) : false
+  const isUnresolved = incident ? (incident.status === 'unresolved' && !isInvestigating) : false
+
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-background">
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 relative">
-        {/* Hero Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20">
-              <CardHeader className="pb-2 border-none">
-                <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
-                  <ShieldAlert className="w-4 h-4" /> Open Incidents
+      <main className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 relative">
+         <div className="text-xs font-semibold uppercase tracking-wider text-white/30 px-2 flex justify-between">
+           <span>Live Operations Dashboard</span>
+           <span className="text-emerald-400">System Healthy</span>
+         </div>
+        {/* Hero Stats - Shrunk */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <Card className="bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 py-2">
+              <CardHeader className="p-3 pb-0 border-none">
+                <CardTitle className="text-xs font-medium text-red-400 flex items-center gap-2">
+                  <ShieldAlert className="w-3 h-3" /> Open Incidents
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">4</div>
-                <p className="text-xs text-white/50 mt-1">+2 from last hour</p>
+              <CardContent className="p-3 pt-1">
+                <div className="text-xl font-bold text-white flex items-baseline gap-2">4 <span className="text-[10px] text-white/50 font-normal">+2 from last hour</span></div>
               </CardContent>
             </Card>
           </motion.div>
           
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20">
-              <CardHeader className="pb-2 border-none">
-                <CardTitle className="text-sm font-medium text-emerald-400 flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Resolved Today
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20 py-2">
+              <CardHeader className="p-3 pb-0 border-none">
+                <CardTitle className="text-xs font-medium text-emerald-400 flex items-center gap-2">
+                  <CheckCircle2 className="w-3 h-3" /> Resolved Today
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">12</div>
-                <p className="text-xs text-white/50 mt-1">98% within SLA</p>
+              <CardContent className="p-3 pt-1">
+                <div className="text-xl font-bold text-white flex items-baseline gap-2">12 <span className="text-[10px] text-white/50 font-normal">98% within SLA</span></div>
               </CardContent>
             </Card>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-gradient-to-br from-indigo-500/10 to-transparent border-indigo-500/20">
-              <CardHeader className="pb-2 border-none">
-                <CardTitle className="text-sm font-medium text-indigo-400 flex items-center gap-2">
-                  <Activity className="w-4 h-4" /> Average MTTR
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="bg-gradient-to-br from-indigo-500/10 to-transparent border-indigo-500/20 py-2">
+              <CardHeader className="p-3 pb-0 border-none">
+                <CardTitle className="text-xs font-medium text-indigo-400 flex items-center gap-2">
+                  <Activity className="w-3 h-3" /> Average MTTR
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">14m</div>
-                <p className="text-xs text-indigo-400/80 mt-1">-32% vs last week (AI assisted)</p>
+              <CardContent className="p-3 pt-1">
+                <div className="text-xl font-bold text-white flex items-baseline gap-2">14m <span className="text-[10px] text-indigo-400/80 font-normal">-32% vs last week</span></div>
               </CardContent>
             </Card>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20">
-              <CardHeader className="pb-2 border-none">
-                <CardTitle className="text-sm font-medium text-purple-400 flex items-center gap-2">
-                  <Cpu className="w-4 h-4" /> AI Confidence
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 py-2">
+              <CardHeader className="p-3 pb-0 border-none">
+                <CardTitle className="text-xs font-medium text-purple-400 flex items-center gap-2">
+                  <Cpu className="w-3 h-3" /> AI Confidence
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-white">94%</div>
-                <p className="text-xs text-white/50 mt-1">across active resolutions</p>
+              <CardContent className="p-3 pt-1">
+                <div className="text-xl font-bold text-white flex items-baseline gap-2">94% <span className="text-[10px] text-white/50 font-normal">across resolutions</span></div>
               </CardContent>
             </Card>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[500px]">
-          <Card className="lg:col-span-2 flex flex-col">
-            <CardHeader>
-              <CardTitle>Live System Map</CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 border-t border-white/5 bg-white/[0.02] p-0 relative">
-              <SystemMap />
-            </CardContent>
-          </Card>
+        <div className="flex-1 flex gap-4 min-h-0">
+          {/* Left Column: Feed */}
+          <div className="w-[450px] shrink-0 flex flex-col min-h-0">
+             <IncidentFeed />
+          </div>
           
-          <IncidentFeed />
-        </div>
-
-        {/* Second row for Logs and other components */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[400px]">
-          <ReasoningPanel />
-          <AlertSimulator />
+          {/* Right Column */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-black/20 rounded-lg border border-white/10 p-4 gap-4">
+             {selectedIncidentId && incident ? (
+                isUnresolved ? (
+                   <EmailPopup 
+                     incident={incident} 
+                     onInvestigate={() => {
+                        setInvestigatingIds(prev => new Set(prev).add(incident.id))
+                     }} 
+                   />
+                ) : (
+                   <InvestigationWizard disableAnimation={!isInvestigating} />
+                )
+             ) : (
+                <div className="flex-1 grid grid-rows-2 gap-4 min-h-0">
+                   <Card className="flex flex-col bg-[#0A0A0A] border-white/10">
+                     <CardHeader className="py-3">
+                       <CardTitle className="text-sm">Live System Map</CardTitle>
+                     </CardHeader>
+                     <CardContent className="flex-1 border-t border-white/5 bg-white/[0.02] p-0 relative min-h-0">
+                       <SystemMap />
+                     </CardContent>
+                   </Card>
+                   
+                   <div className="grid grid-cols-1 gap-4 min-h-0">
+                     <div className="overflow-auto min-h-0 rounded-lg">
+                       <ReasoningPanel />
+                     </div>
+                   </div>
+                </div>
+             )}
+          </div>
         </div>
       </main>
     </div>

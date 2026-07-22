@@ -28,3 +28,14 @@ def receive_alert(request: AlertRequest, db: Session = Depends(get_db)):
     
     incident = db.query(Incident).filter(Incident.id == incident_id).first()
     return incident
+
+@router.post("/{incident_id}/investigate", response_model=IncidentResponse)
+def investigate_alert(incident_id: str, db: Session = Depends(get_db)):
+    try:
+        orchestrator = OrchestratorAgent(db)
+        orchestrator.investigate_existing_alert(incident_id)
+        
+        incident = db.query(Incident).filter(Incident.id == incident_id).first()
+        return incident
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

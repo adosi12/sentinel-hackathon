@@ -8,6 +8,7 @@ class IncidentBase(BaseModel):
     severity: str
     application: str
     component: str
+    impacted_services: Optional[List[str]] = []
 
 class AlertRequest(BaseModel):
     raw_alert: str

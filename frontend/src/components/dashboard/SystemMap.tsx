@@ -53,8 +53,12 @@ export default function SystemMap() {
   // Dynamic nodes calculation
   const getNodes = () => {
     return initialNodes.map(node => {
-      const isAffected = incident && (node.data.label.includes(incident.component) || node.data.label.includes(incident.application))
-      if (isAffected) {
+      // Check if the service name is in the AI-generated impacted_services array
+      const isImpactedByAI = incident?.impacted_services?.includes(node.data.label)
+      // Fallback to basic string matching just in case
+      const isAffectedFallback = incident && (node.data.label.includes(incident.component) || node.data.label.includes(incident.application))
+      
+      if (isImpactedByAI || isAffectedFallback) {
         return {
           ...node,
           style: { background: '#ef444420', color: '#f87171', border: '1px solid #ef4444', borderRadius: '8px', boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)' }

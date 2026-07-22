@@ -46,7 +46,48 @@ class OrchestratorAgent:
         
         incident.confidence_score = rca_result.get("confidence", 0.0)
         incident.suggested_resolution = rca_result.get("suggested_resolution", "")
+        incident.impacted_services = rca_result.get("impacted_services", [])
         incident.status = "open"
+        self.db.commit()
+        
+        return incident.id
+
+    def investigate_existing_alert(self, incident_id: str) -> str:
+        # Fetch the existing unresolved incident
+        incident = self.db.query(Incident).filter(Incident.id == incident_id).first()
+        if not incident:
+            raise ValueError(f"Incident {incident_id} not found")
+            
+        # The description holds the raw email text. We parse it.
+        raw_alert = incident.description
+        
+        # Step 1: Intake Analysis
+        intake_result = analyze_incident_intake(raw_alert)
+        
+        # Update incident with extracted structure
+        incident.title = intake_result.title
+        incident.description = intake_result.summary
+        incident.severity = intake_result.severity
+        incident.application = intake_result.application
+        incident.component = intake_result.component
+        
+        # Step 2: RCA Generation
+        from app.services.vector_store import vector_store
+        similar_incidents = vector_store.search_similar_incidents(query_text=intake_result.summary, n_results=2)
+        logs_summary = f"Simulated logs for {incident.application} - {incident.component}: Anomaly detected."
+        
+        rca_result = generate_rca(
+            incident_context={"title": incident.title, "application": incident.application, "summary": incident.description},
+            logs_summary=logs_summary,
+            historical_matches=similar_incidents
+        )
+        
+        incident.confidence_score = rca_result.get("confidence", 0.0)
+        incident.suggested_resolution = rca_result.get("suggested_resolution", "")
+        incident.impacted_services = rca_result.get("impacted_services", [])
+        
+        # Mark as resolved
+        incident.status = "resolved"
         self.db.commit()
         
         return incident.id

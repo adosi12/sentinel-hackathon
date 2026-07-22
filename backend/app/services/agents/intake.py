@@ -16,31 +16,26 @@ class IncidentIntakeResult(BaseModel):
 def analyze_incident_intake(raw_alert: str) -> IncidentIntakeResult:
     prompt = f"""
     You are an expert Principal SRE for an enterprise banking platform.
-    Analyze the following raw incident alert and extract the key fields.
-    Return JSON format matching these keys: title, severity (Low, Medium, High, Critical), application, component, is_banking_incident (boolean), summary.
+    A user or monitoring system has provided the following unstructured description of an issue in production.
+    Analyze the description and extract the key fields to create an incident ticket.
+    Return JSON format matching these exact keys: 
+    - title (a short, descriptive title)
+    - severity (Low, Medium, High, Critical)
+    - application (e.g. Core Banking, Mobile App, Payment Gateway)
+    - component (the specific microservice or database likely failing)
+    - is_banking_incident (boolean)
+    - summary (a professional technical summary of the issue).
 
-    Raw Alert:
+    User/System Issue Description:
     {raw_alert}
     """
     
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt,
-            config={
-                "response_mime_type": "application/json"
-            }
-        )
-        data = json.loads(response.text)
-    except Exception as e:
-        # Fallback for hackathon if API key rate limits (limit: 0) are hit
-        print(f"Gemini API Error in Intake: {e}")
-        data = {
-            "title": "API Gateway Latency Spike",
-            "summary": "High latency observed on API Gateway leading to 502 Bad Gateway responses.",
-            "severity": "CRITICAL",
-            "application": "Core Banking",
-            "component": "API Gateway",
-            "is_banking_incident": True
+    response = client.models.generate_content(
+        model='gemini-1.5-flash',
+        contents=prompt,
+        config={
+            "response_mime_type": "application/json"
         }
+    )
+    data = json.loads(response.text)
     return IncidentIntakeResult(**data)

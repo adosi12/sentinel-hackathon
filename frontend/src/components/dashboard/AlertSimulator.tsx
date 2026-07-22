@@ -13,7 +13,7 @@ const triggerAlert = async (rawAlert: string) => {
   return response.data
 }
 
-export default function AlertSimulator() {
+export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreated?: (id: string) => void }) {
   const [alertText, setAlertText] = useState('')
   const queryClient = useQueryClient()
   const { setSelectedIncident } = useSentinelStore()
@@ -26,6 +26,9 @@ export default function AlertSimulator() {
       // Auto-select the newly created incident
       if (data && data.id) {
         setSelectedIncident(data.id)
+        if (onIncidentCreated) {
+           onIncidentCreated(data.id)
+        }
       }
       setAlertText('')
     }
@@ -43,8 +46,8 @@ export default function AlertSimulator() {
           Paste an unstructured PagerDuty log or alert here. Sentinel's orchestrator will parse it using Gemini 2.5 Pro, search ChromaDB for historical RAG context, and generate an RCA.
         </p>
         <textarea
-          className="w-full h-24 bg-white/5 border border-white/10 rounded-md p-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-500/50 resize-none mb-3"
-          placeholder="e.g. CRITICAL: Connection timeout to Oracle DB from API Gateway. P99 latency spiked to 45s. Users reporting 502 errors."
+          className="w-full h-32 bg-white/5 border border-white/10 rounded-md p-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-500/50 resize-none mb-3"
+          placeholder="Describe what you are seeing in production in plain English. &#10;&#10;For example: 'Users are reporting that they can't checkout on the mobile app. It just hangs and then gives a 504 Gateway Timeout.' Sentinel will automatically analyze this, search historical context, map the impacted microservices, and provide an RCA."
           value={alertText}
           onChange={(e) => setAlertText(e.target.value)}
         />
