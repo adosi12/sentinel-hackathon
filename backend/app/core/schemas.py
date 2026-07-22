@@ -27,6 +27,10 @@ class IncidentResponse(IncidentBase):
     est_financial_exposure: float
     mttr_saved: float
     
+    jira_content: Optional[str] = None
+    slack_content: Optional[str] = None
+    email_content: Optional[str] = None
+    
     class Config:
         orm_mode = True
         from_attributes = True

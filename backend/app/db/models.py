@@ -34,6 +34,11 @@ class Incident(Base):
     est_financial_exposure = Column(Float, default=0.0)
     mttr_saved = Column(Float, default=0.0) # hours
     
+    # Generated Notifications/Tickets
+    jira_content = Column(Text, nullable=True)
+    slack_content = Column(Text, nullable=True)
+    email_content = Column(Text, nullable=True)
+    
     logs = relationship("Log", back_populates="incident")
     tickets = relationship("Ticket", back_populates="incident")
     notifications = relationship("Notification", back_populates="incident")

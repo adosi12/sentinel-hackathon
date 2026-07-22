@@ -59,31 +59,32 @@ export default function EmailPopup({ incident, onInvestigate }: { incident: Inci
        </div>
        
        {/* Details Body */}
-       <div className="p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 grid grid-cols-[100px_1fr] gap-y-3 text-sm">
-             <div className="text-white/40 font-medium">Source</div>
-             <div className="text-white/90 font-mono text-xs flex items-center">{fromLine.replace('From:', '').trim()}</div>
+       <div className="p-8 overflow-y-auto custom-scrollbar flex flex-col">
+          <div className="grid grid-cols-[80px_1fr] gap-y-4 text-sm pb-6 border-b border-white/10">
+             <div className="text-white/40 font-medium pt-1">Source</div>
+             <div className="text-white/90 font-mono text-sm bg-white/5 w-fit px-3 py-1 rounded-md border border-white/5">{fromLine.replace('From:', '').trim()}</div>
              
-             <div className="text-white/40 font-medium">Routing</div>
-             <div className="text-white/90 font-mono text-xs flex flex-wrap gap-1">
+             <div className="text-white/40 font-medium pt-1">Routing</div>
+             <div className="flex flex-wrap gap-2">
                 {toLine.replace('To:', '').split(',').map((email, idx) => (
-                   <span key={idx} className="bg-white/10 px-2 py-0.5 rounded">{email.trim()}</span>
+                   <span key={idx} className="bg-white/5 border border-white/5 text-white/80 font-mono text-sm px-3 py-1 rounded-md">{email.trim()}</span>
                 ))}
              </div>
              
-             <div className="text-white/40 font-medium">Subject</div>
-             <div className="text-white font-semibold">{subjectLine.replace('Subject:', '').trim()}</div>
+             <div className="text-white/40 font-medium pt-1">Subject</div>
+             <div className="text-white font-semibold text-base pt-1">{subjectLine.replace('Subject:', '').trim()}</div>
           </div>
           
-          <div>
-             <h3 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <span className="w-1 h-4 bg-indigo-500 rounded-full"></span>
-                Incident Description
-             </h3>
-             <div className="bg-[#050505] border border-white/5 rounded-lg p-5 font-mono text-sm text-white/80 leading-relaxed shadow-inner">
-                {body.split('\n').map((line, i) => (
-                   <p key={i} className={`min-h-[1.5rem] ${line.includes('Error:') ? 'text-red-400 font-bold' : ''}`}>{line}</p>
-                ))}
+          <div className="pt-6">
+             <div className="font-mono text-sm text-white/80 leading-loose">
+                {body.split('\n').map((line, i) => {
+                   if (!line.trim()) return <br key={i} />;
+                   return (
+                     <p key={i} className={`min-h-[1.5rem] ${line.includes('Error:') ? 'text-red-400 font-bold bg-red-500/10 inline-block px-2 rounded -ml-2' : ''}`}>
+                       {line}
+                     </p>
+                   )
+                })}
              </div>
           </div>
        </div>

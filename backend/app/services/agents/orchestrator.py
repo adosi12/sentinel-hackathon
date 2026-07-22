@@ -47,7 +47,13 @@ class OrchestratorAgent:
         incident.confidence_score = rca_result.get("confidence", 0.0)
         incident.suggested_resolution = rca_result.get("suggested_resolution", "")
         incident.impacted_services = rca_result.get("impacted_services", [])
-        incident.status = "open"
+        
+        # Save generated notification contents
+        incident.jira_content = rca_result.get("jira_ticket_content", "")
+        incident.slack_content = rca_result.get("slack_message_content", "")
+        incident.email_content = rca_result.get("email_notification_content", "")
+        
+        incident.status = "resolved"
         self.db.commit()
         
         return incident.id
@@ -85,6 +91,11 @@ class OrchestratorAgent:
         incident.confidence_score = rca_result.get("confidence", 0.0)
         incident.suggested_resolution = rca_result.get("suggested_resolution", "")
         incident.impacted_services = rca_result.get("impacted_services", [])
+        
+        # Save generated notification contents
+        incident.jira_content = rca_result.get("jira_ticket_content", "")
+        incident.slack_content = rca_result.get("slack_message_content", "")
+        incident.email_content = rca_result.get("email_notification_content", "")
         
         # Mark as resolved
         incident.status = "resolved"

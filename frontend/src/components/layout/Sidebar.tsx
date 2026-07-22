@@ -12,6 +12,7 @@ export default function Sidebar() {
     { name: 'Alert Simulator', href: '/simulator', icon: Activity },
     { name: 'Historical Explorer', href: '/explorer', icon: History },
     { name: 'Executive Dashboard', href: '/executive', icon: PieChart },
+    { name: 'Integrations', href: '/integrations', icon: Settings },
   ]
 
   return (

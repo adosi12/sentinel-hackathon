@@ -106,7 +106,7 @@ export default function Home() {
           </div>
           
           {/* Right Column */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-black/20 rounded-lg border border-white/10 p-4 gap-4">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden gap-4">
              {selectedIncidentId && incident ? (
                 isUnresolved ? (
                    <EmailPopup 

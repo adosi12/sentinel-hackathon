@@ -173,7 +173,7 @@ export default function InvestigationWizard({ disableAnimation = false, incident
                <Step6Code />
             </StepNode>
             <StepNode stepNumber={7} title="Ticket & Notifications" isActive={activeStep === 7} isCompleted={activeStep > 7} disableAnimation={disableAnimation}>
-               <Step7Tickets />
+               <Step7Tickets incident={incident} />
             </StepNode>
             <StepNode stepNumber={8} title="Incident Memory Update" isActive={activeStep === 8} isCompleted={activeStep > 8} isLast disableAnimation={disableAnimation}>
                <Step8Completion />
