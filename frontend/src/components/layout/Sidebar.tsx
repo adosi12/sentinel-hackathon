@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, History, PieChart, Settings, Shield, Activity, Sparkles } from 'lucide-react'
 
@@ -20,10 +21,17 @@ export default function Sidebar() {
     <aside className="w-64 glass border-r border-white/5 flex flex-col h-screen shrink-0 relative z-20">
       <div className="h-16 flex items-center px-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 tracking-tight">Sentinel</h1>
+          <Image 
+            src="/logo.jpg" 
+            alt="Mind Matrix Logo" 
+            width={32} 
+            height={32} 
+            className="rounded" 
+          />
+          <h1 className="text-2xl font-black tracking-tighter">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/70">Sentinel</span>
+            <span className="ml-1.5 text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-purple-500">AI</span>
+          </h1>
         </div>
       </div>
       
