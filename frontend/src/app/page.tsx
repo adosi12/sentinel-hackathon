@@ -59,53 +59,53 @@ export default function Home() {
         {/* Hero Stats - Shrunk */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 py-2">
+            <Card className="bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 py-2 interactive-hover">
               <CardHeader className="p-3 pb-0 border-none">
                 <CardTitle className="text-xs font-medium text-red-400 flex items-center gap-2">
                   <ShieldAlert className="w-3 h-3" /> Open Incidents
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-xl font-bold text-white flex items-baseline gap-2">4 <span className="text-[10px] text-white/50 font-normal">+2 from last hour</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">4 <span className="text-[10px] text-white/50 font-normal">+2 from last hour</span></div>
               </CardContent>
             </Card>
           </motion.div>
           
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20 py-2">
+            <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20 py-2 interactive-hover">
               <CardHeader className="p-3 pb-0 border-none">
                 <CardTitle className="text-xs font-medium text-emerald-400 flex items-center gap-2">
                   <CheckCircle2 className="w-3 h-3" /> Resolved Today
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-xl font-bold text-white flex items-baseline gap-2">12 <span className="text-[10px] text-white/50 font-normal">98% within SLA</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">12 <span className="text-[10px] text-white/50 font-normal">98% within SLA</span></div>
               </CardContent>
             </Card>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-gradient-to-br from-indigo-500/10 to-transparent border-indigo-500/20 py-2">
+            <Card className="bg-gradient-to-br from-indigo-500/10 to-transparent border-indigo-500/20 py-2 interactive-hover">
               <CardHeader className="p-3 pb-0 border-none">
                 <CardTitle className="text-xs font-medium text-indigo-400 flex items-center gap-2">
                   <Activity className="w-3 h-3" /> Average MTTR
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-xl font-bold text-white flex items-baseline gap-2">14m <span className="text-[10px] text-indigo-400/80 font-normal">-32% vs last week</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">14m <span className="text-[10px] text-indigo-400/80 font-normal">-32% vs last week</span></div>
               </CardContent>
             </Card>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 py-2">
+            <Card className="bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 py-2 interactive-hover">
               <CardHeader className="p-3 pb-0 border-none">
                 <CardTitle className="text-xs font-medium text-purple-400 flex items-center gap-2">
                   <Cpu className="w-3 h-3" /> AI Confidence
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-xl font-bold text-white flex items-baseline gap-2">94% <span className="text-[10px] text-white/50 font-normal">across resolutions</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">94% <span className="text-[10px] text-white/50 font-normal">across resolutions</span></div>
               </CardContent>
             </Card>
           </motion.div>

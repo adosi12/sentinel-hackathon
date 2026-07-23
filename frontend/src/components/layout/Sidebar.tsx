@@ -9,7 +9,7 @@ export default function Sidebar() {
   
   const navItems = [
     { name: 'Active Investigations', href: '/', icon: LayoutDashboard },
-    { name: 'Alert Simulator', href: '/simulator', icon: Activity },
+    { name: 'Inject Investigations', href: '/simulator', icon: Activity },
     { name: 'Historical Explorer', href: '/explorer', icon: History },
     { name: 'AI Insights', href: '/ai-insights', icon: Sparkles },
     { name: 'Executive Dashboard', href: '/executive', icon: PieChart },

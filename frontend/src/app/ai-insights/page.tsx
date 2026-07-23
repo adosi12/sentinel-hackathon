@@ -347,15 +347,6 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 rounded-2xl p-5 space-y-2 text-xs">
-            <div className="font-semibold text-indigo-300 flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              Hackathon Panel Summary
-            </div>
-            <p className="text-white/70 text-[11px] leading-relaxed">
-              Sentinel AI avoids simple rule-based alert scripts by combining vector database RAG memory with Google Gemini 3.1 Pro reasoning, enabling enterprise banking systems to auto-triage incidents with verified historical confidence.
-            </p>
-          </div>
         </div>
       </div>
     </div>
