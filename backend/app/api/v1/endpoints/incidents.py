@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
+from pydantic import BaseModel
 
 from app.db.session import get_db
 from app.db.models import Incident
@@ -39,3 +41,26 @@ def investigate_alert(incident_id: str, db: Session = Depends(get_db)):
         return incident
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+class ProvideInputRequest(BaseModel):
+    input: str
+
+@router.post("/{incident_id}/provide-input", response_model=IncidentResponse)
+def provide_input(incident_id: str, request: ProvideInputRequest, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+        
+    # Simulate processing the human input and resolving
+    incident.needs_human_input = False
+    incident.status = "resolved"
+    incident.resolved_at = datetime.utcnow()
+    # Update suggested resolution with the human input context
+    if incident.suggested_resolution:
+        incident.suggested_resolution += f"\n\nHuman Context Applied: {request.input}"
+    else:
+        incident.suggested_resolution = f"Human Context Applied: {request.input}"
+        
+    db.commit()
+    db.refresh(incident)
+    return incident

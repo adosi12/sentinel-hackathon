@@ -74,8 +74,8 @@ export default function ExecutiveDashboard() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-white">${(stats.totalExposure).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                    <p className="text-xs text-indigo-400/80 mt-1">Across all historical incidents</p>
+                    <div className="text-3xl font-bold text-white">${(stats.totalExposure / 1000000).toFixed(2)}M</div>
+                    <p className="text-xs text-indigo-400/80 mt-1">Extrapolated from {stats.totalIncidents} simulated incidents</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -89,7 +89,7 @@ export default function ExecutiveDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-white">{stats.mttrSaved.toFixed(1)} hrs</div>
-                    <p className="text-xs text-emerald-400/80 mt-1">By automated root cause analysis</p>
+                    <p className="text-xs text-emerald-400/80 mt-1">Across all {stats.totalIncidents} test incidents</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -117,7 +117,7 @@ export default function ExecutiveDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-white">{stats.totalIncidents}</div>
-                    <p className="text-xs text-blue-400/80 mt-1">Incidents processed by Sentinel</p>
+                    <p className="text-xs text-blue-400/80 mt-1">Simulated incidents processed</p>
                   </CardContent>
                 </Card>
               </motion.div>

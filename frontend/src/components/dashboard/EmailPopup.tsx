@@ -29,13 +29,13 @@ export default function EmailPopup({ incident, onInvestigate }: { incident: Inci
   }
 
   // Basic parsing of the fake email string
-  const lines = incident.description.split('\n')
+  const lines = (incident.description || '').split('\n')
   const fromLine = lines.find(l => l.startsWith('From:')) || 'From: monitoring-alerts@bank.internal'
   const toLine = lines.find(l => l.startsWith('To:')) || 'To: sre-team@bank.internal, payments-l2-ops@bank.internal'
   const subjectLine = lines.find(l => l.startsWith('Subject:')) || `Subject: [${incident.severity}] ${incident.id} — ${incident.title}`
   
   // Extract body
-  let body = incident.description
+  let body = incident.description || ''
   const emptyLineIndex = lines.findIndex(l => l.trim() === '')
   if (emptyLineIndex !== -1 && emptyLineIndex < 5) {
       body = lines.slice(emptyLineIndex + 1).join('\n')

@@ -96,30 +96,74 @@ export default function InvestigationWizard({ disableAnimation = false, incident
     enabled: !!activeId,
   })
 
+  const [isWaitingForHuman, setIsWaitingForHuman] = useState(false)
+  const [humanInput, setHumanInput] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   // Simulated AI investigation timeline sequence
   useEffect(() => {
     if (!incident) return
     if (disableAnimation) {
-       setActiveStep(9)
+       setActiveStep(incident.status === 'resolved' ? 9 : incident.needs_human_input ? 5 : 9)
+       if (incident.needs_human_input && incident.status !== 'resolved') {
+         setIsWaitingForHuman(true)
+       }
        return
     }
     
+    // If it's already resolved, just show completed
+    if (incident.status === 'resolved') {
+      setActiveStep(9)
+      return
+    }
+
     setActiveStep(1)
     
-    // Auto-advance through the steps
-    const timers = [
-      setTimeout(() => setActiveStep(2), 1500),
-      setTimeout(() => setActiveStep(3), 3500),
-      setTimeout(() => setActiveStep(4), 5000),
-      setTimeout(() => setActiveStep(5), 7000),
-      setTimeout(() => setActiveStep(6), 9500),
-      setTimeout(() => setActiveStep(7), 11500),
-      setTimeout(() => setActiveStep(8), 13000),
-      setTimeout(() => setActiveStep(9), 15000) // 9 means all completed
-    ]
+    const runSequence = async () => {
+      const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+      await wait(1500); setActiveStep(2);
+      await wait(2000); setActiveStep(3);
+      await wait(1500); setActiveStep(4);
+      await wait(2000); setActiveStep(5);
+      
+      if (incident.needs_human_input) {
+         setIsWaitingForHuman(true)
+         // Halt pipeline here
+         return
+      }
+
+      await wait(2500); setActiveStep(6);
+      await wait(2000); setActiveStep(7);
+      await wait(1500); setActiveStep(8);
+      await wait(2000); setActiveStep(9);
+    }
     
-    return () => timers.forEach(clearTimeout)
-  }, [incident?.id, disableAnimation]) // Re-run when incident changes
+    runSequence()
+  }, [incident?.id, disableAnimation, incident?.status]) // Re-run when incident changes
+
+  const submitHumanInput = async () => {
+    if (!humanInput.trim()) return
+    setIsSubmitting(true)
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+      await axios.post(`${apiUrl}/incidents/${incident?.id}/provide-input`, { input: humanInput })
+      
+      // Resume pipeline
+      setIsWaitingForHuman(false)
+      const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+      await wait(1500); setActiveStep(6);
+      await wait(2000); setActiveStep(7);
+      await wait(1500); setActiveStep(8);
+      await wait(2000); setActiveStep(9);
+      
+      // Update local state to show resolved
+      incident!.status = 'resolved'
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   if (!incident) return null
 
@@ -137,9 +181,15 @@ export default function InvestigationWizard({ disableAnimation = false, incident
         </div>
         <div className="flex items-center gap-4">
            {activeStep < 9 ? (
-             <div className="flex items-center gap-2 text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-full border border-indigo-500/20 text-sm font-medium">
-               <Loader2 className="w-4 h-4 animate-spin" /> Running AI Pipeline — Step {activeStep}/8
-             </div>
+             isWaitingForHuman ? (
+                <div className="flex items-center gap-2 text-amber-400 bg-amber-500/10 px-4 py-2 rounded-full border border-amber-500/20 text-sm font-medium">
+                  ⚠️ Waiting for Human Input — Step {activeStep}/8
+                </div>
+             ) : (
+                <div className="flex items-center gap-2 text-indigo-400 bg-indigo-500/10 px-4 py-2 rounded-full border border-indigo-500/20 text-sm font-medium">
+                  <Loader2 className="w-4 h-4 animate-spin" /> Running AI Pipeline — Step {activeStep}/8
+                </div>
+             )
            ) : (
              <div className="flex items-center gap-2 text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20 text-sm font-medium">
                <Check className="w-4 h-4" /> Investigation Complete
@@ -168,6 +218,41 @@ export default function InvestigationWizard({ disableAnimation = false, incident
             </StepNode>
             <StepNode stepNumber={5} title="Root Cause Analysis" isActive={activeStep === 5} isCompleted={activeStep > 5} disableAnimation={disableAnimation}>
                <Step5RCA incidentDetails={incident} />
+               <AnimatePresence>
+                 {isWaitingForHuman && activeStep === 5 && (
+                   <motion.div 
+                     initial={{ opacity: 0, y: 10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.95 }}
+                     className="mt-4 border border-amber-500/20 bg-amber-500/10 rounded-md p-4 flex flex-col gap-3"
+                   >
+                     <div className="flex items-start gap-2">
+                       <span className="text-xl">⚠️</span>
+                       <div>
+                         <h4 className="text-amber-400 font-bold text-sm">Low AI Confidence ({(incident.confidence_score! * 100).toFixed(0)}%)</h4>
+                         <p className="text-white/70 text-sm mt-1">{incident.human_prompt || "Sentinel requires human context to proceed. Please provide details."}</p>
+                       </div>
+                     </div>
+                     <textarea 
+                       value={humanInput}
+                       onChange={(e) => setHumanInput(e.target.value)}
+                       placeholder="Enter context here..."
+                       disabled={isSubmitting}
+                       className="w-full h-20 bg-[#050505] border border-amber-500/20 rounded p-2 text-sm text-white focus:outline-none focus:border-amber-500 resize-none font-mono"
+                     />
+                     <div className="flex justify-end">
+                       <button 
+                         onClick={submitHumanInput}
+                         disabled={!humanInput.trim() || isSubmitting}
+                         className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                       >
+                         {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                         Submit Input & Resume
+                       </button>
+                     </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
             </StepNode>
             <StepNode stepNumber={6} title="Code Investigation" isActive={activeStep === 6} isCompleted={activeStep > 6} disableAnimation={disableAnimation}>
                <Step6Code />
