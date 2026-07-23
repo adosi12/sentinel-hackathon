@@ -8,22 +8,33 @@ export default function Step1Intake({ incident }: { incident: Incident }) {
       {/* Raw Email / Alert Mock */}
       <div className="border border-white/10 rounded-md overflow-hidden bg-[#0A0A0A]">
         <div className="bg-white/5 px-4 py-2 border-b border-white/10 flex items-center gap-2 text-xs text-white/50 font-mono uppercase tracking-wider">
-          <Mail className="w-3 h-3" /> Source Email / Alert
+          <Mail className="w-3 h-3" /> {incident.id.length > 10 ? 'User Investigation Statement' : 'Source Email / Alert'}
         </div>
         <div className="p-4 text-sm font-mono text-white/70 whitespace-pre-wrap leading-relaxed">
-          <span className="text-white/40">From:</span> monitoring-alerts@bank.internal<br/>
-          <span className="text-white/40">To:</span> sre-team@bank.internal; payments-l2-ops<br/>
-          <span className="text-white/40">Subject:</span> <span className="text-white font-semibold">[CRITICAL] {incident.id} — {incident.title}</span><br/><br/>
-          
-          <span className="text-red-400 bg-red-500/10 px-1 rounded">CRITICAL</span> A production incident has been raised in <span className="text-indigo-400">{incident.application}</span>.<br/><br/>
-          
-          Error details detected in {incident.component}:<br/>
-          <span className="text-white/50">{incident.description}</span><br/><br/>
-          
-          Trans ID: TXN_98765<br/>
-          Impact: Critical — SLA Breach risk<br/>
-          <br/>
-          <span className="text-emerald-400">Sentinel AI is beginning autonomous investigation. Reference: {incident.id}</span>
+          {incident.id.length > 10 ? (
+            <div className="flex flex-col gap-2">
+              <span className="text-white/40">User Query:</span>
+              <span className="text-white bg-white/5 p-3 rounded-md border border-white/10">{incident.description}</span>
+              <br/>
+              <span className="text-emerald-400">Sentinel AI is beginning autonomous investigation.</span>
+            </div>
+          ) : (
+            <>
+              <span className="text-white/40">From:</span> monitoring-alerts@bank.internal<br/>
+              <span className="text-white/40">To:</span> sre-team@bank.internal; payments-l2-ops<br/>
+              <span className="text-white/40">Subject:</span> <span className="text-white font-semibold">[CRITICAL] {incident.id} — {incident.title}</span><br/><br/>
+              
+              <span className="text-red-400 bg-red-500/10 px-1 rounded">CRITICAL</span> A production incident has been raised in <span className="text-indigo-400">{incident.application}</span>.<br/><br/>
+              
+              Error details detected in {incident.component}:<br/>
+              <span className="text-white/50">{incident.description}</span><br/><br/>
+              
+              Trans ID: TXN_98765<br/>
+              Impact: Critical — SLA Breach risk<br/>
+              <br/>
+              <span className="text-emerald-400">Sentinel AI is beginning autonomous investigation. Reference: {incident.id}</span>
+            </>
+          )}
         </div>
       </div>
 
@@ -35,11 +46,11 @@ export default function Step1Intake({ incident }: { incident: Incident }) {
         <div className="p-4 grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">INC Number</span>
-            <span className="text-indigo-400 font-mono font-medium">{incident.id}</span>
+            <span className="text-indigo-400 font-mono font-medium">{incident.id.length > 10 ? 'N/A (Ad-hoc)' : incident.id}</span>
           </div>
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">Severity</span>
-            <span className="text-red-400 font-medium px-2 py-0.5 bg-red-500/10 rounded text-xs">{incident.severity}</span>
+            <span className="text-red-400 font-medium px-2 py-0.5 bg-red-500/10 rounded text-xs">{incident.id.length > 10 ? 'N/A' : incident.severity}</span>
           </div>
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">Service</span>
@@ -47,15 +58,15 @@ export default function Step1Intake({ incident }: { incident: Incident }) {
           </div>
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">Alert Type</span>
-            <span className="text-white/80">{incident.title.split(' ')[0] || 'System Failure'}</span>
+            <span className="text-white/80">{incident.id.length > 10 ? 'User Injection' : (incident.title.split(' ')[0] || 'System Failure')}</span>
           </div>
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">Trans ID</span>
-            <span className="text-white/80 font-mono">TXN_98765</span>
+            <span className="text-white/80 font-mono">{incident.id.length > 10 ? 'N/A' : 'TXN_98765'}</span>
           </div>
           <div className="flex justify-between items-center border-b border-white/5 pb-2">
             <span className="text-white/40 text-xs font-mono uppercase">Reporter</span>
-            <span className="text-white/60 text-xs">ServiceNow Bot</span>
+            <span className="text-white/60 text-xs">{incident.id.length > 10 ? 'System User' : 'ServiceNow Bot'}</span>
           </div>
         </div>
       </div>
