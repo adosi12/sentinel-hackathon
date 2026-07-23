@@ -46,14 +46,14 @@ export default function IntegrationsPage() {
       accent: 'from-emerald-500 to-teal-400'
     },
     {
-      id: 'pagerduty',
-      icon: '🔥',
-      name: 'PagerDuty',
-      description: 'Auto-escalate P1 incidents to on-call engineers with full context.',
-      connected: false,
-      buttonText: 'Connect',
-      buttonPrimary: false,
-      accent: 'from-orange-500 to-red-500'
+      id: 'outlook',
+      icon: '📧',
+      name: 'Microsoft Outlook',
+      description: 'Ingest alert emails and auto-reply with AI-driven summaries.',
+      connected: true,
+      buttonText: 'View Settings',
+      buttonPrimary: true,
+      accent: 'from-blue-400 to-blue-600'
     },
     {
       id: 'prometheus',

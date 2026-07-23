@@ -2,11 +2,14 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, History, PieChart, Settings, Shield, Activity, Sparkles } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, History, PieChart, Settings, Shield, Activity, Sparkles, LogOut } from 'lucide-react'
+import { useSentinelStore } from '@/lib/store'
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useSentinelStore()
   
   const navItems = [
     { name: 'Active Investigations', href: '/', icon: LayoutDashboard },
@@ -56,9 +59,26 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-white/5">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/60 hover:bg-white/5 hover:text-white cursor-pointer transition-all">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium text-sm">Settings</span>
+        <div className="flex flex-col gap-2 p-3 rounded-lg bg-black/20 border border-white/5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-sm font-medium text-indigo-300 uppercase">
+              {user ? user.email.substring(0, 2) : '??'}
+            </div>
+            <div className="flex flex-col overflow-hidden">
+              <span className="text-sm font-medium text-white truncate">{user ? user.email : 'Loading...'}</span>
+              <span className="text-xs text-white/40 capitalize">{user ? user.role : ''}</span>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              logout()
+              router.push('/login')
+            }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors text-sm font-medium"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
         </div>
       </div>
     </aside>

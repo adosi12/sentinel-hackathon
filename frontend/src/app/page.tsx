@@ -12,13 +12,19 @@ import Header from '@/components/layout/Header'
 import InvestigationWizard from '@/components/dashboard/InvestigationWizard'
 import EmailPopup from '@/components/dashboard/EmailPopup'
 import ManualInvestigationModal from '@/components/dashboard/ManualInvestigationModal'
-import { useSentinelStore } from '@/lib/store'
+import { useSentinelStore, Incident } from '@/lib/store'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 const fetchIncidentDetails = async (id: string) => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
   const response = await axios.get(`${apiUrl}/incidents/${id}`)
+  return response.data
+}
+
+const fetchIncidents = async (): Promise<Incident[]> => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+  const response = await axios.get(`${apiUrl}/incidents`)
   return response.data
 }
 
@@ -32,6 +38,44 @@ export default function Home() {
     queryFn: () => fetchIncidentDetails(selectedIncidentId!),
     enabled: !!selectedIncidentId,
   })
+
+  const { data: allIncidents } = useQuery({
+    queryKey: ['incidents'],
+    queryFn: fetchIncidents,
+  })
+
+  const openIncidentsCount = allIncidents ? allIncidents.filter((i: Incident) => i.status !== 'resolved' && i.status !== 'simulated').length : 0
+  const resolvedTodayCount = allIncidents ? allIncidents.filter((i: Incident) => i.status === 'resolved' && new Date(i.resolved_at || i.created_at).toDateString() === new Date().toDateString()).length : 0
+  
+  // Average MTTR
+  const resolvedIncidents = allIncidents ? allIncidents.filter((i: Incident) => i.status === 'resolved' && i.resolved_at) : []
+  let avgMttrStr = "--"
+  if (resolvedIncidents.length > 0) {
+      let totalMinutes = 0
+      resolvedIncidents.forEach((i: Incident) => {
+          const created = new Date(i.created_at).getTime()
+          const resolved = new Date(i.resolved_at!).getTime()
+          totalMinutes += (resolved - created) / (1000 * 60)
+      })
+      const avg = Math.round(totalMinutes / resolvedIncidents.length)
+      if (avg >= 60) {
+          avgMttrStr = `${Math.floor(avg / 60)}h ${avg % 60}m`
+      } else {
+          avgMttrStr = `${avg}m`
+      }
+  }
+
+  // AI Confidence
+  let avgConfidenceStr = "--"
+  const scoredIncidents = allIncidents ? allIncidents.filter((i: Incident) => i.confidence_score !== undefined && i.confidence_score !== null && i.confidence_score > 0 && i.status !== 'simulated') : []
+  if (scoredIncidents.length > 0) {
+      const sum = scoredIncidents.reduce((acc: number, i: Incident) => {
+          const score = (i.confidence_score || 0);
+          const normalized = score <= 1.0 ? score * 100 : score;
+          return acc + normalized;
+      }, 0)
+      avgConfidenceStr = `${Math.round(sum / scoredIncidents.length)}%`
+  }
 
   // Whenever selectedIncidentId changes, reset investigating state so we always show the email first
   React.useEffect(() => {
@@ -66,7 +110,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-3xl font-bold text-white flex items-baseline gap-2">4 <span className="text-[10px] text-white/50 font-normal">+2 from last hour</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">{openIncidentsCount} <span className="text-[10px] text-white/50 font-normal">active now</span></div>
               </CardContent>
             </Card>
           </motion.div>
@@ -79,7 +123,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-3xl font-bold text-white flex items-baseline gap-2">12 <span className="text-[10px] text-white/50 font-normal">98% within SLA</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">{resolvedTodayCount} <span className="text-[10px] text-white/50 font-normal">incidents solved</span></div>
               </CardContent>
             </Card>
           </motion.div>
@@ -92,7 +136,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-3xl font-bold text-white flex items-baseline gap-2">14m <span className="text-[10px] text-indigo-400/80 font-normal">-32% vs last week</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">{avgMttrStr} <span className="text-[10px] text-indigo-400/80 font-normal">time to resolve</span></div>
               </CardContent>
             </Card>
           </motion.div>
@@ -105,7 +149,7 @@ export default function Home() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 pt-1">
-                <div className="text-3xl font-bold text-white flex items-baseline gap-2">94% <span className="text-[10px] text-white/50 font-normal">across resolutions</span></div>
+                <div className="text-3xl font-bold text-white flex items-baseline gap-2">{avgConfidenceStr} <span className="text-[10px] text-white/50 font-normal">across resolutions</span></div>
               </CardContent>
             </Card>
           </motion.div>
@@ -128,7 +172,7 @@ export default function Home() {
                      }} 
                    />
                 ) : (
-                   <InvestigationWizard disableAnimation={!isInvestigating} />
+                   <InvestigationWizard disableAnimation={!isInvestigating} incidentId={incident.id} />
                 )
              ) : (
                 <div className="flex-1 flex flex-col items-center justify-center min-h-0 bg-[#0A0A0A] border border-white/5 rounded-xl text-center p-8">
@@ -152,9 +196,9 @@ export default function Home() {
           try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
             const response = await axios.post(`${apiUrl}/incidents/alert`, { raw_alert: query })
-            const incident = response.data
-            setSelectedIncident(incident.id)
-            setInvestigatingIds(prev => new Set(prev).add(incident.id))
+            const inc = response.data
+            setSelectedIncident(inc.id)
+            setInvestigatingIds(prev => new Set(prev).add(inc.id))
           } catch (error) {
             console.error("Failed to trigger investigation API", error)
             // Fallback for demo just in case

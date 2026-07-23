@@ -16,7 +16,7 @@ const triggerAlert = async (rawAlert: string) => {
 export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreated?: (id: string) => void }) {
   const [alertText, setAlertText] = useState('')
   const queryClient = useQueryClient()
-  const { setSelectedIncident } = useSentinelStore()
+  const { setSelectedIncident, user } = useSentinelStore()
 
   const mutation = useMutation({
     mutationFn: triggerAlert,
@@ -37,8 +37,10 @@ export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreate
   return (
     <Card className="flex flex-col bg-black/40 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.05)]">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center gap-2 text-indigo-400">
-          <ServerCrash className="w-4 h-4" /> Inject Investigations
+        <CardTitle className="text-sm font-medium flex items-center justify-between text-indigo-400">
+          <div className="flex items-center gap-2">
+            <ServerCrash className="w-4 h-4" /> Inject Investigations
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>

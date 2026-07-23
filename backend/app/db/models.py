@@ -23,6 +23,7 @@ class Incident(Base):
     component = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
     resolved_at = Column(DateTime, nullable=True)
+    triggered_by = Column(String, nullable=True)
     impacted_services = Column(JSON, default=[])
     
     # Analysis results

@@ -3,7 +3,6 @@ import React from 'react'
 import Header from '@/components/layout/Header'
 import AlertSimulator from '@/components/dashboard/AlertSimulator'
 import InvestigationWizard from '@/components/dashboard/InvestigationWizard'
-import { useSentinelStore } from '@/lib/store'
 
 export default function SimulatorPage() {
   const [simulatedIncidentId, setSimulatedIncidentId] = React.useState<string | null>(null)

@@ -23,10 +23,13 @@ def get_incident(incident_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Incident not found")
     return incident
 
+from app.api.deps import get_current_user
+from app.db.models import User
+
 @router.post("/alert", response_model=IncidentResponse)
-def receive_alert(request: AlertRequest, db: Session = Depends(get_db)):
+def receive_alert(request: AlertRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     orchestrator = OrchestratorAgent(db)
-    incident_id = orchestrator.process_new_alert(request.raw_alert)
+    incident_id = orchestrator.process_new_alert(request.raw_alert, triggered_by=current_user.email)
     
     incident = db.query(Incident).filter(Incident.id == incident_id).first()
     return incident

@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { FileCode2, Check, Loader2 } from 'lucide-react'
 
-export default function Step6Code() {
+export default function Step6Code({ incident }: { incident?: any }) {
+  const appName = incident?.application || 'core-banking-gateway'
   const [isPatching, setIsPatching] = useState(false)
   const [patchSuccess, setPatchSuccess] = useState(false)
   const [prUrl, setPrUrl] = useState("")
@@ -34,7 +35,7 @@ export default function Step6Code() {
     <div className="border border-white/10 rounded-md overflow-hidden bg-[#0A0A0A] flex flex-col text-sm">
       <div className="bg-white/5 border-b border-white/10 px-4 py-2 flex items-center justify-between text-xs text-white/50 uppercase tracking-wider">
         <div className="flex items-center gap-2">
-           <FileCode2 className="w-4 h-4 text-emerald-400" /> ledger.py — core-banking-gateway
+           <FileCode2 className="w-4 h-4 text-emerald-400" /> ledger.py — {appName}
         </div>
         <div className="flex items-center gap-2 font-mono">
            <span className="text-emerald-400">+4</span> <span className="text-red-400">-0</span>

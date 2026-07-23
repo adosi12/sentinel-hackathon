@@ -122,6 +122,8 @@ export default function InvestigationWizard({ disableAnimation = false, incident
     setJiraStatus('completed')
   }
 
+  const playedIncidentId = React.useRef<string | null>(null)
+
   // Simulated AI investigation timeline sequence
   useEffect(() => {
     if (!incident) return
@@ -133,12 +135,12 @@ export default function InvestigationWizard({ disableAnimation = false, incident
        return
     }
     
-    // If it's already resolved, just show completed
-    if (incident.status === 'resolved') {
-      setActiveStep(9)
-      return
+    if (incident.status === 'resolved' && playedIncidentId.current === incident.id) {
+       setActiveStep(9)
+       return
     }
 
+    playedIncidentId.current = incident.id
     setActiveStep(1)
     
     const runSequence = async () => {
@@ -227,13 +229,13 @@ export default function InvestigationWizard({ disableAnimation = false, incident
                <Step1Intake incident={incident} />
             </StepNode>
             <StepNode stepNumber={2} title="Historical Memory Search" isActive={activeStep === 2} isCompleted={activeStep > 2} disableAnimation={disableAnimation}>
-               <Step2Historical />
+               <Step2Historical incident={incident} />
             </StepNode>
             <StepNode stepNumber={3} title="Telemetry Correlation" isActive={activeStep === 3} isCompleted={activeStep > 3} disableAnimation={disableAnimation}>
                <Step3Telemetry incident={incident} />
             </StepNode>
             <StepNode stepNumber={4} title="Live Dependency Map" isActive={activeStep === 4} isCompleted={activeStep > 4} disableAnimation={disableAnimation}>
-               <Step4Dependency />
+               <Step4Dependency incident={incident} />
             </StepNode>
             <StepNode stepNumber={5} title="Root Cause Analysis" isActive={activeStep === 5} isCompleted={activeStep > 5} disableAnimation={disableAnimation}>
                <Step5RCA incidentDetails={incident} />
@@ -274,7 +276,7 @@ export default function InvestigationWizard({ disableAnimation = false, incident
                </AnimatePresence>
             </StepNode>
             <StepNode stepNumber={6} title="Code Investigation" isActive={activeStep === 6} isCompleted={activeStep > 6} disableAnimation={disableAnimation}>
-               <Step6Code />
+               <Step6Code incident={incident} />
             </StepNode>
             <StepNode stepNumber={7} title="Ticket & Notifications" isActive={activeStep === 7} isCompleted={activeStep > 7} disableAnimation={disableAnimation}>
                <Step7Tickets incident={incident} />

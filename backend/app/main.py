@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.v1.endpoints import incidents
+from app.api.v1.endpoints import incidents, auth
 from app.db.session import engine
 from app.db.models import Base
 
@@ -74,4 +74,5 @@ async def apply_patch(req: PatchRequest):
 async def health_check():
     return {"status": "ok", "service": "Sentinel API"}
 
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(incidents.router, prefix="/api/v1/incidents", tags=["Incidents"])
