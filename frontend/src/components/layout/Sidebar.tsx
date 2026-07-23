@@ -2,15 +2,16 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, History, PieChart, Settings, Shield, Activity } from 'lucide-react'
+import { LayoutDashboard, History, PieChart, Settings, Shield, Activity, Sparkles } from 'lucide-react'
 
 export default function Sidebar() {
   const pathname = usePathname()
   
   const navItems = [
-    { name: 'Live Ops', href: '/', icon: LayoutDashboard },
+    { name: 'Active Investigations', href: '/', icon: LayoutDashboard },
     { name: 'Alert Simulator', href: '/simulator', icon: Activity },
     { name: 'Historical Explorer', href: '/explorer', icon: History },
+    { name: 'AI Insights', href: '/ai-insights', icon: Sparkles },
     { name: 'Executive Dashboard', href: '/executive', icon: PieChart },
     { name: 'Integrations', href: '/integrations', icon: Settings },
   ]

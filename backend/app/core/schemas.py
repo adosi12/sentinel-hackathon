@@ -27,6 +27,9 @@ class IncidentResponse(IncidentBase):
     est_financial_exposure: float
     mttr_saved: float
     
+    needs_human_input: bool = False
+    human_prompt: Optional[str] = None
+    
     jira_content: Optional[str] = None
     slack_content: Optional[str] = None
     email_content: Optional[str] = None

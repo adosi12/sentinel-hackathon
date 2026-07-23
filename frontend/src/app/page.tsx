@@ -11,6 +11,7 @@ import ReasoningPanel from '@/components/dashboard/ReasoningPanel'
 import Header from '@/components/layout/Header'
 import InvestigationWizard from '@/components/dashboard/InvestigationWizard'
 import EmailPopup from '@/components/dashboard/EmailPopup'
+import ManualInvestigationModal from '@/components/dashboard/ManualInvestigationModal'
 import { useSentinelStore } from '@/lib/store'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
@@ -24,6 +25,7 @@ const fetchIncidentDetails = async (id: string) => {
 export default function Home() {
   const { selectedIncidentId, setSelectedIncident } = useSentinelStore()
   const [investigatingIds, setInvestigatingIds] = useState<Set<string>>(new Set())
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false)
 
   const { data: incident } = useQuery({
     queryKey: ['incident', selectedIncidentId],
@@ -40,8 +42,13 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 relative">
-         <div className="text-xs font-semibold uppercase tracking-wider text-white/30 px-2 flex justify-between">
-           <span>Live Operations Dashboard</span>
+         <div className="text-xs font-semibold uppercase tracking-wider text-white/30 px-2 flex justify-between items-center">
+           <div className="flex items-center gap-4">
+             <span>Active Investigations Dashboard</span>
+             <Button variant="outline" size="sm" className="h-7 px-3 text-[10px] bg-indigo-500/10 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20" onClick={() => setIsManualModalOpen(true)}>
+               + Add Investigation
+             </Button>
+           </div>
            <span className="text-emerald-400">System Healthy</span>
          </div>
         {/* Hero Stats - Shrunk */}
@@ -139,6 +146,26 @@ export default function Home() {
           </div>
         </div>
       </main>
+      
+      <ManualInvestigationModal 
+        isOpen={isManualModalOpen} 
+        onClose={() => setIsManualModalOpen(false)} 
+        onSubmit={async (query) => {
+          try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+            const response = await axios.post(`${apiUrl}/incidents/alert`, { raw_alert: query })
+            const incident = response.data
+            setSelectedIncident(incident.id)
+            setInvestigatingIds(prev => new Set(prev).add(incident.id))
+          } catch (error) {
+            console.error("Failed to trigger investigation API", error)
+            // Fallback for demo just in case
+            const dummyId = "INC-1000"
+            setSelectedIncident(dummyId)
+            setInvestigatingIds(prev => new Set(prev).add(dummyId))
+          }
+        }}
+      />
     </div>
   )
 }

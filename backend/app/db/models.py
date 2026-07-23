@@ -28,6 +28,8 @@ class Incident(Base):
     # Analysis results
     confidence_score = Column(Float, nullable=True)
     suggested_resolution = Column(Text, nullable=True)
+    needs_human_input = Column(Boolean, default=False)
+    human_prompt = Column(String, nullable=True)
     
     # Business impact
     est_customers_impacted = Column(Integer, default=0)

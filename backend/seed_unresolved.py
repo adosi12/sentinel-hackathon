@@ -5,13 +5,7 @@ from datetime import datetime
 def seed():
     db = SessionLocal()
     
-    # Check if we already seeded it
-    existing = db.query(Incident).filter(Incident.id == "INC-8492").first()
-    if existing:
-        print("Already seeded.")
-        return
-        
-    incident = Incident(
+    incident_data = dict(
         id="INC-8492",
         title="[CRITICAL] INC-8492 — Payment Gateway — Jackson Deserialization Failure",
         description="""From: monitoring-alerts@bank.internal
@@ -29,12 +23,23 @@ Sentinel AI is beginning autonomous investigation. Reference: INC0094821""",
         severity="CRITICAL",
         application="payment-gateway",
         component="payment-gateway",
-        created_at=datetime.utcnow()
+        needs_human_input=True,
+        human_prompt="There are conflicting Jackson dependencies in the recent deployment. Was the Jackson library version pinned across all modules in the latest release?",
+        confidence_score=45.0
     )
     
-    db.add(incident)
-    db.commit()
-    print("Seeded INC-8492 successfully.")
+    existing = db.query(Incident).filter(Incident.id == "INC-8492").first()
+    if existing:
+        for k, v in incident_data.items():
+            setattr(existing, k, v)
+        db.commit()
+        print("Updated INC-8492 successfully.")
+    else:
+        incident_data['created_at'] = datetime.utcnow()
+        incident = Incident(**incident_data)
+        db.add(incident)
+        db.commit()
+        print("Seeded INC-8492 successfully.")
 
 if __name__ == "__main__":
     seed()
