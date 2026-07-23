@@ -21,7 +21,10 @@ class OrchestratorAgent:
             severity=intake_result.severity,
             application=intake_result.application,
             component=intake_result.component,
-            status="investigating"
+            status="investigating",
+            est_customers_impacted=0,
+            est_financial_exposure=0.0,
+            mttr_saved=0.0
         )
         self.db.add(incident)
         self.db.commit()
