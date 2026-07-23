@@ -21,13 +21,18 @@ export default function Sidebar() {
     <aside className="w-64 glass border-r border-white/5 flex flex-col h-screen shrink-0 relative z-20">
       <div className="h-16 flex items-center px-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <Image 
-            src="/logo.jpg" 
-            alt="Mind Matrix Logo" 
-            width={32} 
-            height={32} 
-            className="rounded" 
-          />
+          <div className="relative group cursor-pointer">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+            <div className="relative flex items-center justify-center rounded-lg shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+              <Image 
+                src="/logo.jpg" 
+                alt="Mind Matrix Logo" 
+                width={36} 
+                height={36} 
+                className="rounded-lg object-cover" 
+              />
+            </div>
+          </div>
           <h1 className="text-2xl font-black tracking-tighter">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/70">Sentinel</span>
             <span className="ml-1.5 text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-purple-500">AI</span>
