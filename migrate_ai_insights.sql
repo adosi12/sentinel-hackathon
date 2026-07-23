@@ -1,0 +1,4 @@
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS confidence_score FLOAT;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS suggested_resolution TEXT;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS needs_human_input BOOLEAN DEFAULT FALSE;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS human_prompt VARCHAR;
