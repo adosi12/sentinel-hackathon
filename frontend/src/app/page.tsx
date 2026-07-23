@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Bell, Search, Activity, ShieldAlert, Cpu, CheckCircle2 } from 'lucide-react'
+import { Bell, Search, Activity, ShieldAlert, Cpu, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
 import SystemMap from '@/components/dashboard/SystemMap'
 import AlertSimulator from '@/components/dashboard/AlertSimulator'
@@ -33,8 +33,13 @@ export default function Home() {
     enabled: !!selectedIncidentId,
   })
 
+  // Whenever selectedIncidentId changes, reset investigating state so we always show the email first
+  React.useEffect(() => {
+    setInvestigatingIds(new Set())
+  }, [selectedIncidentId])
+
   const isInvestigating = incident ? investigatingIds.has(incident.id) : false
-  const isUnresolved = incident ? (incident.status === 'unresolved' && !isInvestigating) : false
+  const isUnresolved = incident ? (incident.status !== 'resolved' && !isInvestigating) : false
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden bg-background">
@@ -126,21 +131,14 @@ export default function Home() {
                    <InvestigationWizard disableAnimation={!isInvestigating} />
                 )
              ) : (
-                <div className="flex-1 grid grid-rows-2 gap-4 min-h-0">
-                   <Card className="flex flex-col bg-[#0A0A0A] border-white/10">
-                     <CardHeader className="py-3">
-                       <CardTitle className="text-sm">Live System Map</CardTitle>
-                     </CardHeader>
-                     <CardContent className="flex-1 border-t border-white/5 bg-white/[0.02] p-0 relative min-h-0">
-                       <SystemMap />
-                     </CardContent>
-                   </Card>
-                   
-                   <div className="grid grid-cols-1 gap-4 min-h-0">
-                     <div className="overflow-auto min-h-0 rounded-lg">
-                       <ReasoningPanel />
-                     </div>
+                <div className="flex-1 flex flex-col items-center justify-center min-h-0 bg-[#0A0A0A] border border-white/5 rounded-xl text-center p-8">
+                   <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
+                      <ShieldCheck className="w-8 h-8 text-emerald-500" />
                    </div>
+                   <h2 className="text-xl font-bold text-white mb-2">Systems Healthy</h2>
+                   <p className="text-sm text-white/50 max-w-sm">
+                      There are no active incidents requiring your attention. Select an incident from the feed to view its analysis or inject an alert to test the AI.
+                   </p>
                 </div>
              )}
           </div>

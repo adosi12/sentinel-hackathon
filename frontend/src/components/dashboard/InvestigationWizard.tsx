@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Loader2, Play } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { useSentinelStore, Incident } from '@/lib/store'
 
@@ -99,6 +99,28 @@ export default function InvestigationWizard({ disableAnimation = false, incident
   const [isWaitingForHuman, setIsWaitingForHuman] = useState(false)
   const [humanInput, setHumanInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const [jiraStatus, setJiraStatus] = useState<'pending' | 'checking' | 'completed'>('pending')
+  const queryClient = useQueryClient()
+  
+  const resolveMutation = useMutation({
+    mutationFn: async () => {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+      const response = await axios.put(`${apiUrl}/incidents/${incident?.id}/resolve`)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['incidents'] })
+      queryClient.invalidateQueries({ queryKey: ['incident', incident?.id] })
+    }
+  })
+
+  const handleCheckJira = async () => {
+    setJiraStatus('checking')
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    setJiraStatus('completed')
+  }
 
   // Simulated AI investigation timeline sequence
   useEffect(() => {
@@ -263,6 +285,58 @@ export default function InvestigationWizard({ disableAnimation = false, incident
             <StepNode stepNumber={8} title="Incident Memory Update" isActive={activeStep === 8} isCompleted={activeStep > 8} isLast disableAnimation={disableAnimation}>
                <Step8Completion />
             </StepNode>
+
+            {/* Verification and Closure Panel */}
+            <AnimatePresence>
+              {activeStep === 9 && incident?.status !== 'resolved' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8 border border-white/10 bg-[#0A0A0A] rounded-xl overflow-hidden"
+                >
+                  <div className="bg-black/40 border-b border-white/10 p-4">
+                    <h3 className="text-sm font-semibold tracking-wide uppercase text-white flex items-center gap-2">
+                      Verification & Closure
+                    </h3>
+                  </div>
+                  <div className="p-6 flex flex-col gap-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-white mb-1">Check Development Status</h4>
+                        <p className="text-xs text-white/50">Verify if the associated Jira ticket has been completed by the engineering team.</p>
+                      </div>
+                      <button
+                        onClick={handleCheckJira}
+                        disabled={jiraStatus === 'checking' || jiraStatus === 'completed'}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {jiraStatus === 'checking' ? <Loader2 className="w-4 h-4 animate-spin" /> : 
+                         jiraStatus === 'completed' ? <Check className="w-4 h-4" /> : null}
+                        {jiraStatus === 'pending' ? 'Check Jira Status' : 
+                         jiraStatus === 'checking' ? 'Checking...' : 'Jira Completed'}
+                      </button>
+                    </div>
+
+                    <div className="h-px w-full bg-white/5" />
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-white mb-1">Resolve Incident</h4>
+                        <p className="text-xs text-white/50">Mark this incident as completely resolved. Requires Jira completion.</p>
+                      </div>
+                      <button
+                        onClick={() => resolveMutation.mutate()}
+                        disabled={jiraStatus !== 'completed' || resolveMutation.isPending}
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {resolveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                        Mark as Resolved
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
          </div>
       </div>
     </div>

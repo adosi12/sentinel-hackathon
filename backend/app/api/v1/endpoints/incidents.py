@@ -51,16 +51,28 @@ def provide_input(incident_id: str, request: ProvideInputRequest, db: Session = 
     if not incident:
         raise HTTPException(status_code=404, detail="Incident not found")
         
-    # Simulate processing the human input and resolving
+    # Simulate processing the human input
     incident.needs_human_input = False
-    incident.status = "resolved"
-    incident.resolved_at = datetime.utcnow()
+    incident.status = "investigating"
+    
     # Update suggested resolution with the human input context
     if incident.suggested_resolution:
         incident.suggested_resolution += f"\n\nHuman Context Applied: {request.input}"
     else:
         incident.suggested_resolution = f"Human Context Applied: {request.input}"
         
+    db.commit()
+    db.refresh(incident)
+    return incident
+
+@router.put("/{incident_id}/resolve", response_model=IncidentResponse)
+def mark_resolved(incident_id: str, db: Session = Depends(get_db)):
+    incident = db.query(Incident).filter(Incident.id == incident_id).first()
+    if not incident:
+        raise HTTPException(status_code=404, detail="Incident not found")
+        
+    incident.status = "resolved"
+    incident.resolved_at = datetime.utcnow()
     db.commit()
     db.refresh(incident)
     return incident

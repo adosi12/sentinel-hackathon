@@ -53,7 +53,7 @@ class OrchestratorAgent:
         incident.slack_content = rca_result.get("slack_message_content", "")
         incident.email_content = rca_result.get("email_notification_content", "")
         
-        incident.status = "resolved"
+        incident.status = "investigating"
         self.db.commit()
         
         return incident.id
@@ -98,7 +98,7 @@ class OrchestratorAgent:
         incident.email_content = rca_result.get("email_notification_content", "")
         
         # Mark as resolved
-        incident.status = "resolved"
+        incident.status = "investigating"
         self.db.commit()
         
         return incident.id

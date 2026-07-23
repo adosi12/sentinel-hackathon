@@ -25,7 +25,10 @@ export default function EmailPopup({ incident, onInvestigate }: { incident: Inci
 
   const handleLaunch = () => {
      onInvestigate();
-     mutation.mutate();
+     // Only trigger the backend API if it hasn't been investigated yet
+     if (!incident.jira_content) {
+        mutation.mutate();
+     }
   }
 
   // Basic parsing of the fake email string
@@ -101,6 +104,8 @@ export default function EmailPopup({ incident, onInvestigate }: { incident: Inci
           >
              {mutation.isPending ? (
                 <><Loader2 className="w-5 h-5 animate-spin" /> Initializing AI...</>
+             ) : incident.jira_content ? (
+                <><Play className="w-5 h-5 fill-current" /> View AI Investigation Results</>
              ) : (
                 <><Play className="w-5 h-5 fill-current" /> Launch AI Investigation</>
              )}
