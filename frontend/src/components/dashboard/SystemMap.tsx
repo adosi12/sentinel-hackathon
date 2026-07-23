@@ -41,31 +41,42 @@ const fetchIncidentDetails = async (id: string) => {
   return response.data
 }
 
-export default function SystemMap() {
+export default function SystemMap({ incident: propIncident }: { incident?: any } = {}) {
   const { selectedIncidentId } = useSentinelStore()
   
-  const { data: incident } = useQuery({
+  const { data: queryIncident } = useQuery({
     queryKey: ['incident', selectedIncidentId],
     queryFn: () => fetchIncidentDetails(selectedIncidentId!),
-    enabled: !!selectedIncidentId,
+    enabled: !!selectedIncidentId && !propIncident,
   })
+
+  const incident = propIncident || queryIncident
 
   // Dynamic nodes calculation
   const getNodes = () => {
     return initialNodes.map(node => {
+      // If the incident has a specific application that isn't in our hardcoded list,
+      // let's rename the "Authentication" node to match it so the UI looks dynamic
+      let nodeLabel = node.data.label
+      if (node.id === '2' && incident?.application && !initialNodes.find(n => n.data.label.toLowerCase().includes(incident.application.toLowerCase()))) {
+         nodeLabel = incident.application
+      }
+
       // Check if the service name is in the AI-generated impacted_services array
-      const isImpactedByAI = incident?.impacted_services?.includes(node.data.label)
+      const isImpactedByAI = incident?.impacted_services?.includes(nodeLabel)
       // Fallback to basic string matching just in case
-      const isAffectedFallback = incident && (node.data.label.includes(incident.component) || node.data.label.includes(incident.application))
+      const isAffectedFallback = incident && (nodeLabel.toLowerCase().includes(incident.component?.toLowerCase() || '') || nodeLabel.toLowerCase().includes(incident.application?.toLowerCase() || ''))
       
       if (isImpactedByAI || isAffectedFallback) {
         return {
           ...node,
+          data: { label: nodeLabel },
           style: { background: '#ef444420', color: '#f87171', border: '1px solid #ef4444', borderRadius: '8px', boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)' }
         }
       }
       return {
         ...node,
+        data: { label: nodeLabel },
         style: { background: '#1e1e2d', color: '#fff', border: '1px solid #ffffff1a', borderRadius: '8px' }
       }
     })

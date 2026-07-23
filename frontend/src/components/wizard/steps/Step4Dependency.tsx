@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import SystemMap from '../../dashboard/SystemMap'
 import { Maximize2, X } from 'lucide-react'
 
-export default function Step4Dependency() {
+export default function Step4Dependency({ incident }: { incident?: any }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
@@ -18,7 +18,7 @@ export default function Step4Dependency() {
           <Maximize2 className="w-4 h-4" />
         </button>
         <div className="absolute inset-0 scale-75 origin-center pointer-events-auto">
-          <SystemMap />
+          <SystemMap incident={incident} />
         </div>
       </div>
 
@@ -36,7 +36,7 @@ export default function Step4Dependency() {
               </button>
            </div>
            <div className="flex-1 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl">
-              <SystemMap />
+              <SystemMap incident={incident} />
            </div>
         </div>
       )}

@@ -1,12 +1,15 @@
 import React from 'react'
 import { Brain, Search } from 'lucide-react'
 
-export default function Step2Historical() {
+export default function Step2Historical({ incident }: { incident?: any }) {
+  const appName = incident?.application || 'payment-gateway'
+  const compName = incident?.component || 'payment-service'
+
   return (
     <div className="flex flex-col gap-3">
       {/* Search Header */}
       <div className="flex items-center gap-2 text-xs text-white/50 bg-white/5 border border-white/10 rounded-md p-2">
-        <Search className="w-3 h-3" /> Searching Vector Database (ChromaDB) for semantic similarity...
+        <Search className="w-3 h-3" /> Searching Vector Database (ChromaDB) for semantic similarity on {appName}...
       </div>
 
       {/* Match 1 */}
@@ -17,12 +20,12 @@ export default function Step2Historical() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-white/80 font-medium font-mono text-sm">INC-2026-0391</span>
-            <span className="text-white/60 text-sm">— Connection pool exhaustion post-deploy</span>
+            <span className="text-white/80 font-medium font-mono text-sm">INC-{new Date().getFullYear()}-0391</span>
+            <span className="text-white/60 text-sm">— Historic issue in {compName}</span>
           </div>
           <div className="flex items-center gap-3 text-xs text-white/40 mb-2">
             <span className="bg-white/10 px-2 py-0.5 rounded-full text-[10px]">Resolved 14 days ago</span>
-            <span>Root Cause: Bumped pool limit in config from 200 to 500</span>
+            <span>Root Cause: Similar metric anomaly detected previously</span>
           </div>
         </div>
         <div className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">

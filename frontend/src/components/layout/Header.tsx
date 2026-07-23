@@ -1,8 +1,12 @@
+"use client"
 import React from 'react'
 import { Search, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useSentinelStore } from '@/lib/store'
 
 export default function Header() {
+  const { user } = useSentinelStore()
+
   return (
     <header className="h-16 glass border-b border-white/5 flex items-center justify-between px-6 z-10 shrink-0 sticky top-0">
       <div className="flex items-center gap-4 text-sm font-medium text-white/50">
@@ -22,8 +26,8 @@ export default function Header() {
           <Bell className="w-5 h-5" />
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
         </Button>
-        <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-sm font-medium text-indigo-300">
-          JD
+        <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/50 flex items-center justify-center text-sm font-medium text-indigo-300 uppercase">
+          {user ? user.email.substring(0, 2) : '??'}
         </div>
       </div>
     </header>

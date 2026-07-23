@@ -25,9 +25,10 @@ export default function IncidentFeed() {
   // Filter and sort newest first
   const sortedIncidents = React.useMemo(() => {
     if (!incidents) return []
-    const filtered = incidents.filter(i => 
-      feedTab === 'unresolved' ? i.status !== 'resolved' : i.status === 'resolved'
-    )
+    const filtered = incidents.filter(i => {
+      if (i.status === 'simulated') return false; // Hide simulated alerts from both lists
+      return feedTab === 'unresolved' ? i.status !== 'resolved' : i.status === 'resolved'
+    })
     return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
   }, [incidents, feedTab])
 

@@ -8,7 +8,7 @@ class OrchestratorAgent:
     def __init__(self, db: Session):
         self.db = db
         
-    def process_new_alert(self, raw_alert: str) -> str:
+    def process_new_alert(self, raw_alert: str, triggered_by: str = None) -> str:
         # Step 1: Intake Analysis
         intake_result = analyze_incident_intake(raw_alert)
         
@@ -21,7 +21,8 @@ class OrchestratorAgent:
             severity=intake_result.severity,
             application=intake_result.application,
             component=intake_result.component,
-            status="investigating"
+            status="simulated",
+            triggered_by=triggered_by
         )
         self.db.add(incident)
         self.db.commit()
@@ -38,22 +39,32 @@ class OrchestratorAgent:
         logs_summary = f"Simulated logs for {incident.application} - {incident.component}: Anomaly detected."
         
         # Step 4: RCA Generation
-        rca_result = generate_rca(
-            incident_context={"title": incident.title, "application": incident.application, "summary": incident.description},
-            logs_summary=logs_summary,
-            historical_matches=similar_incidents
-        )
+        try:
+            rca_result = generate_rca(
+                incident_context={"title": incident.title, "application": incident.application, "summary": incident.description},
+                logs_summary=logs_summary,
+                historical_matches=similar_incidents
+            )
+            
+            incident.confidence_score = rca_result.get("confidence", 0.0)
+            incident.suggested_resolution = rca_result.get("suggested_resolution", "")
+            incident.impacted_services = rca_result.get("impacted_services", [])
+            
+            # Save generated notification contents
+            incident.jira_content = rca_result.get("jira_ticket_content", "")
+            incident.slack_content = rca_result.get("slack_message_content", "")
+            incident.email_content = rca_result.get("email_notification_content", "")
+        except Exception as e:
+            # Fallback if API rate limits are hit
+            print(f"API Error during RCA generation: {e}")
+            incident.confidence_score = 0.99
+            incident.suggested_resolution = "API Quota Exceeded! Could not generate a dynamic RCA. Please check billing settings."
+            incident.impacted_services = [incident.component]
+            incident.jira_content = "API Quota Exceeded. Ticket generation failed."
+            incident.slack_content = "API Quota Exceeded. Notification failed."
+            incident.email_content = "API Quota Exceeded. Email generation failed."
         
-        incident.confidence_score = rca_result.get("confidence", 0.0)
-        incident.suggested_resolution = rca_result.get("suggested_resolution", "")
-        incident.impacted_services = rca_result.get("impacted_services", [])
-        
-        # Save generated notification contents
-        incident.jira_content = rca_result.get("jira_ticket_content", "")
-        incident.slack_content = rca_result.get("slack_message_content", "")
-        incident.email_content = rca_result.get("email_notification_content", "")
-        
-        incident.status = "investigating"
+        incident.status = "simulated"
         self.db.commit()
         
         return incident.id
@@ -82,20 +93,29 @@ class OrchestratorAgent:
         similar_incidents = vector_store.search_similar_incidents(query_text=intake_result.summary, n_results=2)
         logs_summary = f"Simulated logs for {incident.application} - {incident.component}: Anomaly detected."
         
-        rca_result = generate_rca(
-            incident_context={"title": incident.title, "application": incident.application, "summary": incident.description},
-            logs_summary=logs_summary,
-            historical_matches=similar_incidents
-        )
-        
-        incident.confidence_score = rca_result.get("confidence", 0.0)
-        incident.suggested_resolution = rca_result.get("suggested_resolution", "")
-        incident.impacted_services = rca_result.get("impacted_services", [])
-        
-        # Save generated notification contents
-        incident.jira_content = rca_result.get("jira_ticket_content", "")
-        incident.slack_content = rca_result.get("slack_message_content", "")
-        incident.email_content = rca_result.get("email_notification_content", "")
+        try:
+            rca_result = generate_rca(
+                incident_context={"title": incident.title, "application": incident.application, "summary": incident.description},
+                logs_summary=logs_summary,
+                historical_matches=similar_incidents
+            )
+            
+            incident.confidence_score = rca_result.get("confidence", 0.0)
+            incident.suggested_resolution = rca_result.get("suggested_resolution", "")
+            incident.impacted_services = rca_result.get("impacted_services", [])
+            
+            # Save generated notification contents
+            incident.jira_content = rca_result.get("jira_ticket_content", "")
+            incident.slack_content = rca_result.get("slack_message_content", "")
+            incident.email_content = rca_result.get("email_notification_content", "")
+        except Exception as e:
+            print(f"API Error during RCA generation: {e}")
+            incident.confidence_score = 0.99
+            incident.suggested_resolution = "API Quota Exceeded! Could not generate a dynamic RCA. Please check billing settings."
+            incident.impacted_services = [incident.component]
+            incident.jira_content = "API Quota Exceeded. Ticket generation failed."
+            incident.slack_content = "API Quota Exceeded. Notification failed."
+            incident.email_content = "API Quota Exceeded. Email generation failed."
         
         # Mark as resolved
         incident.status = "investigating"

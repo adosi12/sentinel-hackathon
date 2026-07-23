@@ -128,7 +128,7 @@ export default function Home() {
                      }} 
                    />
                 ) : (
-                   <InvestigationWizard disableAnimation={!isInvestigating} />
+                   <InvestigationWizard disableAnimation={!isInvestigating} incidentId={incident.id} />
                 )
              ) : (
                 <div className="flex-1 flex flex-col items-center justify-center min-h-0 bg-[#0A0A0A] border border-white/5 rounded-xl text-center p-8">
@@ -152,9 +152,9 @@ export default function Home() {
           try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
             const response = await axios.post(`${apiUrl}/incidents/alert`, { raw_alert: query })
-            const incident = response.data
-            setSelectedIncident(incident.id)
-            setInvestigatingIds(prev => new Set(prev).add(incident.id))
+            const inc = response.data
+            setSelectedIncident(inc.id)
+            setInvestigatingIds(prev => new Set(prev).add(inc.id))
           } catch (error) {
             console.error("Failed to trigger investigation API", error)
             // Fallback for demo just in case
