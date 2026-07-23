@@ -5,7 +5,7 @@ import axios from 'axios'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { useSentinelStore, Incident } from '@/lib/store'
 import { formatDistanceToNow } from 'date-fns'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Search, Filter } from 'lucide-react'
 
 const fetchIncidents = async (): Promise<Incident[]> => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
@@ -16,6 +16,8 @@ const fetchIncidents = async (): Promise<Incident[]> => {
 export default function IncidentFeed() {
   const { selectedIncidentId, setSelectedIncident, setActiveTab } = useSentinelStore()
   const [feedTab, setFeedTab] = useState<'unresolved' | 'resolved'>('unresolved')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeFilter, setActiveFilter] = useState<'all' | 'top5critical'>('all')
   
   const { data: incidents, isLoading, error } = useQuery({
     queryKey: ['incidents'],
@@ -25,12 +27,33 @@ export default function IncidentFeed() {
   // Filter and sort newest first
   const sortedIncidents = React.useMemo(() => {
     if (!incidents) return []
-    const filtered = incidents.filter(i => {
+    let filtered = incidents.filter(i => {
       if (i.status === 'simulated') return false; // Hide simulated alerts from both lists
       return feedTab === 'unresolved' ? i.status !== 'resolved' : i.status === 'resolved'
     })
-    return filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  }, [incidents, feedTab])
+
+    if (searchQuery) {
+        const lowerQ = searchQuery.toLowerCase();
+        filtered = filtered.filter(i => 
+            i.title.toLowerCase().includes(lowerQ) ||
+            i.component.toLowerCase().includes(lowerQ) ||
+            i.application.toLowerCase().includes(lowerQ) ||
+            i.id.toLowerCase().includes(lowerQ)
+        );
+    }
+
+    if (activeFilter === 'top5critical') {
+        filtered = filtered.filter(i => (i.severity || '').toUpperCase() === 'CRITICAL');
+    }
+
+    let sorted = filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    
+    if (activeFilter === 'top5critical') {
+        sorted = sorted.slice(0, 5);
+    }
+
+    return sorted
+  }, [incidents, feedTab, searchQuery, activeFilter])
 
   // Auto-select latest incident on load or tab switch if none selected in this tab
   React.useEffect(() => {
@@ -63,6 +86,32 @@ export default function IncidentFeed() {
            >
              Resolved
            </button>
+        </div>
+        <div className="flex flex-col gap-2 mt-3">
+            <div className="relative group">
+                <Search className="absolute left-2.5 top-2 h-4 w-4 text-white/40 group-focus-within:text-indigo-400 transition-colors" />
+                <input 
+                    type="text" 
+                    placeholder="Search incidents..." 
+                    className="w-full bg-[#050505] border border-white/10 rounded-md py-1.5 pl-9 pr-3 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-white/30"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+            <div className="flex gap-2">
+                <button 
+                    onClick={() => setActiveFilter('all')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded transition-colors border ${activeFilter === 'all' ? 'bg-white/10 text-white border-white/20' : 'text-white/50 hover:bg-white/5 border-transparent'}`}
+                >
+                    <Filter className="w-3 h-3" /> All
+                </button>
+                <button 
+                    onClick={() => setActiveFilter('top5critical')}
+                    className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded transition-colors border ${activeFilter === 'top5critical' ? 'bg-red-500/20 text-red-400 border-red-500/20' : 'text-white/50 hover:bg-white/5 border-transparent'}`}
+                >
+                    Top 5 Critical
+                </button>
+            </div>
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-y-auto custom-scrollbar">
@@ -99,8 +148,8 @@ export default function IncidentFeed() {
             >
               <div className="flex justify-between items-start">
                 <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                  incident.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-400' :
-                  incident.severity === 'HIGH' ? 'bg-orange-500/10 text-orange-400' :
+                  (incident.severity || '').toUpperCase() === 'CRITICAL' ? 'bg-red-500/10 text-red-400' :
+                  (incident.severity || '').toUpperCase() === 'HIGH' ? 'bg-orange-500/10 text-orange-400' :
                   'bg-yellow-500/10 text-yellow-400'
                 }`}>
                   {incident.severity}
