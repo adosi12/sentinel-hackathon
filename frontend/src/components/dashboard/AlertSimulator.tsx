@@ -38,7 +38,7 @@ export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreate
     <Card className="flex flex-col bg-black/40 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.05)]">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium flex items-center gap-2 text-indigo-400">
-          <ServerCrash className="w-4 h-4" /> Real-time Alert Simulator
+          <ServerCrash className="w-4 h-4" /> Inject Investigations
         </CardTitle>
       </CardHeader>
       <CardContent>

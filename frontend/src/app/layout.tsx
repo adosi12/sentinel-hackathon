@@ -1,8 +1,5 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Sentinel | AI Incident Intelligence",
@@ -19,14 +16,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
+      <body className="font-sans">
         <Providers>
           <div className="flex h-screen bg-background overflow-hidden text-foreground">
             <Sidebar />
-            {children}
+            <main className="flex-1 overflow-y-auto">
+              {children}
+            </main>
           </div>
         </Providers>
       </body>
     </html>
   )
 }
+
