@@ -69,7 +69,11 @@ export default function Home() {
   let avgConfidenceStr = "--"
   const scoredIncidents = allIncidents ? allIncidents.filter((i: Incident) => i.confidence_score !== undefined && i.confidence_score !== null && i.confidence_score > 0 && i.status !== 'simulated') : []
   if (scoredIncidents.length > 0) {
-      const sum = scoredIncidents.reduce((acc: number, i: Incident) => acc + (i.confidence_score || 0), 0)
+      const sum = scoredIncidents.reduce((acc: number, i: Incident) => {
+          const score = (i.confidence_score || 0);
+          const normalized = score <= 1.0 ? score * 100 : score;
+          return acc + normalized;
+      }, 0)
       avgConfidenceStr = `${Math.round(sum / scoredIncidents.length)}%`
   }
 
