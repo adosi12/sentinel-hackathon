@@ -22,6 +22,57 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from pydantic import BaseModel
+import os
+
+class PatchRequest(BaseModel):
+    target: str
+
+@app.post("/api/repo/apply-patch")
+async def apply_patch(req: PatchRequest):
+    if req.target == 'ledger_service':
+        file_path = os.path.join(
+            "D:\\", "2026Projects", "AimToApply", "sentinel-hackathon",
+            "data", "sample_repo", "core-banking-gateway", "app", "routers", "ledger.py"
+        )
+        
+        if not os.path.exists(file_path):
+            return {"error": "File not found"}
+            
+        with open(file_path, "r") as f:
+            content = f.read()
+            
+        # The patching logic: replace the buggy comment and add the finally block
+        patch_target = "        # finally:\n        #     if 'db_cursor' in locals():\n        #         db_cursor.close()"
+        
+        pr_url = "https://github.com/amityd/sentinel-hackathon/compare/master...ai-insights"
+        import subprocess
+        repo_path = os.path.join("D:\\", "2026Projects", "AimToApply", "sentinel-hackathon")
+
+        if patch_target in content:
+            # Apply patch
+            content = content.replace(
+                patch_target,
+                "        finally:\n            if 'db_cursor' in locals():\n                db_cursor.close()"
+            )
+            with open(file_path, "w") as f:
+                f.write(content)
+                
+            try:
+                subprocess.run(["git", "checkout", "-b", "ai-insights"], cwd=repo_path, check=False, capture_output=True)
+                subprocess.run(["git", "checkout", "ai-insights"], cwd=repo_path, check=False, capture_output=True)
+                subprocess.run(["git", "add", file_path], cwd=repo_path, check=True, capture_output=True)
+                subprocess.run(["git", "commit", "-m", "AI Patch: Fix connection pool leak"], cwd=repo_path, check=True, capture_output=True)
+                subprocess.run(["git", "push", "-u", "origin", "ai-insights"], cwd=repo_path, check=True, capture_output=True)
+                return {"status": "success", "message": "PR Raised", "pr_url": pr_url}
+            except subprocess.CalledProcessError as e:
+                return {"error": "Git operation failed: " + str(e.stderr)}
+        else:
+            # Even if already patched, return the PR URL so the user can see the diff
+            return {"status": "success", "message": "Patch already applied", "pr_url": pr_url}
+
+    return {"error": "Unknown target"}
+
 @app.get("/api/v1/health")
 async def health_check():
     return {"status": "ok", "service": "Sentinel API"}

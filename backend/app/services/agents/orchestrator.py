@@ -15,13 +15,16 @@ class OrchestratorAgent:
         # Step 2: Create Incident in DB
         # This simulates creating the incident before we search for logs and do RCA
         incident = Incident(
-            id=f"INC-{int(datetime.utcnow().timestamp())}",
+            id=f"INV-{int(datetime.utcnow().timestamp())}",
             title=intake_result.title,
             description=intake_result.summary,
             severity=intake_result.severity,
             application=intake_result.application,
             component=intake_result.component,
             status="simulated",
+            est_customers_impacted=0,
+            est_financial_exposure=0.0,
+            mttr_saved=0.0,
             triggered_by=triggered_by
         )
         self.db.add(incident)

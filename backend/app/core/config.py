@@ -12,8 +12,6 @@ class Settings(BaseSettings):
     CHROMA_PORT: int
     
     GEMINI_API_KEY: str
-    VERTEX_AI_PROJECT_ID: Optional[str] = None
-    VERTEX_AI_LOCATION: Optional[str] = None
     
     class Config:
         env_file = ".env"

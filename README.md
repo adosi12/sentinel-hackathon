@@ -49,3 +49,4 @@ docker exec -it sentinel-backend python scripts/generate_synthetic_data.py
 - **AI Reasoning Panel**: Transparent chain of reasoning (Historical Match, Repository Findings, Confidence).
 - **Incident Feed**: Real-time incident intake and triage.
 - **Business Impact Engine**: Evaluates estimated financial exposure and MTTR saved.
+- **AI-Powered Security Guardrails**: Proactively preventing vulnerabilities and decreasing ACM findings through automated, AI-driven real-time analysis and policy enforcement.

@@ -53,6 +53,8 @@ export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreate
           value={alertText}
           onChange={(e) => setAlertText(e.target.value)}
         />
+        
+
         <Button 
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white" 
           onClick={() => mutation.mutate(alertText)}
@@ -64,6 +66,27 @@ export default function AlertSimulator({ onIncidentCreated }: { onIncidentCreate
             <><Play className="w-4 h-4 mr-2 fill-current" /> Inject Alert</>
           )}
         </Button>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <span className="text-xs text-white/50 py-1 mr-1">Quick Scenarios:</span>
+          <button 
+            onClick={() => setAlertText("Users are reporting that they can't checkout on the mobile app. It just hangs and then gives a 504 Gateway Timeout.")}
+            className="text-[10px] px-2 py-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 transition-colors text-left leading-tight"
+          >
+            Checkout 504
+          </button>
+          <button 
+            onClick={() => setAlertText("Database CPU on the primary postgres instance has spiked to 99% for the last 5 minutes. Application latency is severely degraded.")}
+            className="text-[10px] px-2 py-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 transition-colors text-left leading-tight"
+          >
+            DB CPU Spike
+          </button>
+          <button 
+            onClick={() => setAlertText("Multiple microservices are failing to connect to Redis. Connection pool exhausted errors in core-banking-gateway.")}
+            className="text-[10px] px-2 py-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 text-white/70 transition-colors text-left leading-tight"
+          >
+            Redis Pool Exhaustion
+          </button>
+        </div>
       </CardContent>
     </Card>
   )
