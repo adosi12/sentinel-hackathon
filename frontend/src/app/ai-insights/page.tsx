@@ -78,11 +78,11 @@ explain EXACTLY why the service crashed.
       color: "from-pink-500 to-rose-500",
       badge: "Automated SDLC",
       summary: "Seamlessly integrates into your existing SDLC (Software Development Life Cycle) by automatically applying the fix to source code, raising a GitHub PR, and opening a Jira ticket.",
-      techStack: ["Git Operations", "Jira API", "Slack Webhooks"],
+      techStack: ["Git Operations", "Jira API", "MS Teams Webhooks"],
       details: {
         inputs: ["AI Code Patch", "GitHub Repository"],
         processing: "Directly edits the buggy file in the real microservice, commits the change to your feature branch, and pushes it to GitHub for immediate review.",
-        outputs: ["GitHub Pull Request URL", "Slack Alert", "Jira Ticket"]
+        outputs: ["GitHub Pull Request URL", "MS Teams Alert", "Jira Ticket"]
       },
       codeSnippet: `# Automatically fixing the real microservice code
 subprocess.run(["git", "commit", "-m", "AI Patch"])
@@ -307,7 +307,7 @@ return {"pr_url": pr_url}`
           Sentinel provides a complete End-to-End Enterprise Integration that revolutionizes the traditional <strong>SDLC (Software Development Life Cycle)</strong>. It performs <strong>Data Normalization</strong> on live logs, converts them to <strong>Embeddings</strong>, stores them in <strong>OpenSearch</strong>, uses <strong>RAG</strong> to retrieve context, and empowers a Multi-Agent <strong>LLM Swarm</strong> to physically patch real backend microservices (like Java/Python APIs) and push a GitHub Pull Request!
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative z-10">
           <div className="p-5 rounded-xl bg-[#050505] border border-white/10 hover:border-white/30 transition-colors">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-400">
@@ -341,6 +341,18 @@ return {"pr_url": pr_url}`
             </div>
             <p className="text-xs text-white/60 leading-relaxed">
               Sentinel automatically commits the fixed file to the active <code>feature/ai-insights</code> branch and instantly pushes it to GitHub, ready for human review with a single click.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-[#050505] border border-white/10 hover:border-white/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg bg-rose-500/10 text-rose-400">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-white">AI Guardrails</h3>
+            </div>
+            <p className="text-xs text-white/60 leading-relaxed">
+              Sentinel acts as a proactive security layer, actively preventing Vulnerabilities and decreasing ACM findings by providing intelligent guardrails enforced by AI on all code changes.
             </p>
           </div>
         </div>

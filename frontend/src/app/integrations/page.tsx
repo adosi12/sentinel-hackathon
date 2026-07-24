@@ -26,9 +26,9 @@ export default function IntegrationsPage() {
       accent: 'from-blue-600 to-indigo-500'
     },
     {
-      id: 'slack',
+      id: 'ms-teams',
       icon: '💬',
-      name: 'Slack',
+      name: 'MS Teams',
       description: 'Broadcast critical alerts and AI root-cause summaries to incident channels.',
       connected: true,
       buttonText: 'Send Alert',

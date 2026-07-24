@@ -19,8 +19,8 @@ export default function Step7Tickets({ incident }: { incident?: Incident }) {
         icon = <Kanban className="w-6 h-6 text-blue-400" />
         color = 'text-blue-400'
      } else if (activeModal === 'slack') {
-        title = 'Slack Broadcast'
-        content = incident?.slack_content || 'No Slack content generated yet.'
+        title = 'MS Teams Broadcast'
+        content = incident?.slack_content || 'No MS Teams content generated yet.'
         icon = <MessageSquare className="w-6 h-6 text-purple-400" />
         color = 'text-purple-400'
      } else if (activeModal === 'email') {
@@ -72,14 +72,14 @@ export default function Step7Tickets({ incident }: { incident?: Incident }) {
          <span className="text-xs bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded font-medium border border-blue-500/30">View Ticket</span>
       </button>
 
-      {/* Slack */}
+      {/* MS Teams */}
       <button onClick={() => setActiveModal('slack')} className="w-full text-left group border border-purple-500/20 bg-purple-500/5 hover:bg-purple-500/10 transition-colors rounded-md p-4 flex items-center justify-between cursor-pointer">
          <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-400">
                <MessageSquare className="w-4 h-4" />
             </div>
             <div>
-               <div className="text-sm font-medium text-white/90 group-hover:text-purple-300 transition-colors">Slack — #incident-response</div>
+               <div className="text-sm font-medium text-white/90 group-hover:text-purple-300 transition-colors">MS Teams — #incident-response</div>
                <div className="text-xs text-white/50">Broadcasted AI findings to team channel. Click to view.</div>
             </div>
          </div>
