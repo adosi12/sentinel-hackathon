@@ -13,7 +13,7 @@ export default function AIInsightsPage() {
     {
       id: 0,
       title: "1. Data Collection",
-      short: "Listen & Collect",
+      short: "Continuous Ingestion",
       icon: Terminal,
       color: "from-blue-500 to-cyan-500",
       badge: "Real-time Monitoring",
@@ -21,7 +21,7 @@ export default function AIInsightsPage() {
       techStack: ["FastAPI", "Real Microservices", "Webhooks"],
       details: {
         inputs: ["Live Error Alerts", "App Stack Traces", "Server Info"],
-        processing: "Cleans up the messy error data, removes sensitive passwords, and organizes it into a clear, standard format for the AI to understand.",
+        processing: "Applies Data Normalization to clean up messy error data, removes sensitive PII/passwords, and organizes it into a structured, standard format for the LLM to process.",
         outputs: ["Clean Incident Data", "Unique Error ID"]
       },
       codeSnippet: `// We instantly catch the error when a real service fails
@@ -38,16 +38,16 @@ class IncidentPayload(BaseModel):
       color: "from-purple-500 to-indigo-500",
       badge: "AI Memory (RAG)",
       summary: "Sentinel checks its 'memory' to see if a similar issue has happened before. It reads past incident reports to find how it was fixed last time.",
-      techStack: ["ChromaDB Vector Store", "Similarity Search"],
+      techStack: ["OpenSearch", "Embeddings", "RAG"],
       details: {
         inputs: ["Current Error Text", "Database of Past Outages"],
-        processing: "Uses AI to understand the *meaning* of the error, rather than just keyword matching, to find the most relevant past solutions.",
+        processing: "Converts the normalized error into Embeddings and queries OpenSearch (our Vector DB). Using RAG (Retrieval-Augmented Generation), we fetch the most relevant historical incidents based on semantic meaning.",
         outputs: ["Top Similar Past Incidents", "Historical Fix Instructions"]
       },
       codeSnippet: `# Searching our AI memory for similar past issues
-matches = chroma_collection.query(
-    query_texts=[alert_description],
-    n_results=3
+matches = opensearch_client.search(
+    index="incident-embeddings",
+    body={"query": {"match": {"content": alert_description}}}
 )`
     },
     {
@@ -58,7 +58,7 @@ matches = chroma_collection.query(
       color: "from-emerald-500 to-teal-500",
       badge: "Google Gemini 3.1 Pro",
       summary: "A team of specialized AI Agents work together to analyze the error, determine how much money it's costing, and write the code to fix it.",
-      techStack: ["Google Gemini 3.1 Pro", "Multi-Agent Swarm"],
+      techStack: ["Google Gemini 3.1 Pro (LLM)", "Multi-Agent Swarm"],
       details: {
         inputs: ["Cleaned Error Data", "Past Fixes", "App Code"],
         processing: "The Orchestrator assigns tasks: Triage Agent finds the root cause, Impact Agent calculates financial loss, and Remediation Agent writes the code patch.",
@@ -76,8 +76,8 @@ explain EXACTLY why the service crashed.
       short: "Fix & Raise PR",
       icon: Zap,
       color: "from-pink-500 to-rose-500",
-      badge: "Live Git Ops",
-      summary: "The AI automatically applies the fix to the real source code, creates a Pull Request (PR) on GitHub, and alerts the engineering team on Slack/Jira.",
+      badge: "Automated SDLC",
+      summary: "Seamlessly integrates into your existing SDLC (Software Development Life Cycle) by automatically applying the fix to source code, raising a GitHub PR, and opening a Jira ticket.",
       techStack: ["Git Operations", "Jira API", "Slack Webhooks"],
       details: {
         inputs: ["AI Code Patch", "GitHub Repository"],
@@ -299,12 +299,12 @@ return {"pr_url": pr_url}`
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Rocket className="w-5 h-5 text-rose-400" />
-            Hackathon Feature: Real Services & Auto-Deployment
+            Enterprise Workflow: Intelligent Automation & Auto-Deployment
           </h2>
         </div>
         
         <p className="text-sm text-white/70 mb-8 max-w-3xl">
-          We didn&apos;t just build a dashboard. We integrated Sentinel with <strong>real backend microservices</strong> (like Java and Python APIs). When Sentinel detects a bug, it actually edits the live codebase and pushes a GitHub Pull Request!
+          Sentinel provides a complete End-to-End Enterprise Integration that revolutionizes the traditional <strong>SDLC (Software Development Life Cycle)</strong>. It performs <strong>Data Normalization</strong> on live logs, converts them to <strong>Embeddings</strong>, stores them in <strong>OpenSearch</strong>, uses <strong>RAG</strong> to retrieve context, and empowers a Multi-Agent <strong>LLM Swarm</strong> to physically patch real backend microservices (like Java/Python APIs) and push a GitHub Pull Request!
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">

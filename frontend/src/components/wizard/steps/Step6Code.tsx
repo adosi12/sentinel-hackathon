@@ -10,8 +10,9 @@ export default function Step6Code({ incident }: { incident?: any }) {
   const handleApplyPatch = async () => {
     setIsPatching(true)
     try {
-      // Point this to your FastAPI backend port (e.g. 8000)
-      const res = await fetch('http://localhost:8000/api/repo/apply-patch', {
+      // Point this to your FastAPI backend port
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8001'
+      const res = await fetch(`${apiUrl}/api/repo/apply-patch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ target: 'ledger_service' })

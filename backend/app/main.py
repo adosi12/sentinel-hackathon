@@ -45,7 +45,7 @@ async def apply_patch(req: PatchRequest):
         # The patching logic: replace the buggy comment and add the finally block
         patch_target = "        # finally:\n        #     if 'db_cursor' in locals():\n        #         db_cursor.close()"
         
-        pr_url = "https://github.com/amityd/sentinel-hackathon/compare/master...feature/ai-insights"
+        pr_url = "https://github.com/amityd/sentinel-hackathon/compare/master...ai-insights"
         import subprocess
         repo_path = os.path.join("D:\\", "2026Projects", "AimToApply", "sentinel-hackathon")
 
@@ -59,9 +59,11 @@ async def apply_patch(req: PatchRequest):
                 f.write(content)
                 
             try:
+                subprocess.run(["git", "checkout", "-b", "ai-insights"], cwd=repo_path, check=False, capture_output=True)
+                subprocess.run(["git", "checkout", "ai-insights"], cwd=repo_path, check=False, capture_output=True)
                 subprocess.run(["git", "add", file_path], cwd=repo_path, check=True, capture_output=True)
                 subprocess.run(["git", "commit", "-m", "AI Patch: Fix connection pool leak"], cwd=repo_path, check=True, capture_output=True)
-                subprocess.run(["git", "push", "origin", "feature/ai-insights"], cwd=repo_path, check=True, capture_output=True)
+                subprocess.run(["git", "push", "-u", "origin", "ai-insights"], cwd=repo_path, check=True, capture_output=True)
                 return {"status": "success", "message": "PR Raised", "pr_url": pr_url}
             except subprocess.CalledProcessError as e:
                 return {"error": "Git operation failed: " + str(e.stderr)}

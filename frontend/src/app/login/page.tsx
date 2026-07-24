@@ -30,7 +30,7 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       })
       
-      login(response.data.user, response.data.access_token)
+      login(response.data.access_token, response.data.user)
       router.push('/')
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.')
