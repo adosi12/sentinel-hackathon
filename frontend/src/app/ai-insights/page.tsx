@@ -1,22 +1,9 @@
 "use client"
 import React, { useState } from 'react'
 import { 
-  Sparkles, 
-  Database, 
-  Brain, 
-  GitBranch, 
-  CheckCircle2, 
-  Zap, 
-  ShieldAlert, 
-  Layers, 
-  Cpu, 
-  Terminal, 
-  ArrowRight,
-  Code2,
-  FileJson,
-  Search,
-  Activity,
-  Bot
+  Sparkles, Database, Brain, GitBranch, CheckCircle2, Zap, 
+  ShieldAlert, Layers, Cpu, Terminal, ArrowRight, Code2, 
+  FileJson, Search, Bot, Server, Rocket, GitPullRequest
 } from 'lucide-react'
 
 export default function AIInsightsPage() {
@@ -25,112 +12,89 @@ export default function AIInsightsPage() {
   const pipelineStages = [
     {
       id: 0,
-      title: "1. Telemetry Ingestion",
-      short: "Ingestion & Normalization",
+      title: "1. Data Collection",
+      short: "Listen & Collect",
       icon: Terminal,
       color: "from-blue-500 to-cyan-500",
-      badge: "Real-time API",
-      summary: "Ingests raw system alerts, logs, and stack traces from payment gateways, MQ brokers, and banking microservices.",
-      techStack: ["FastAPI", "Pydantic Schema Validation", "Redis Stream Queue"],
+      badge: "Real-time Monitoring",
+      summary: "Sentinel listens to your live applications. When something breaks (like a payment failure), it instantly grabs the error details, logs, and system information.",
+      techStack: ["FastAPI", "Real Microservices", "Webhooks"],
       details: {
-        inputs: ["Webhook alert payload", "Raw stack trace strings", "System Metadata (Host, Environment)"],
-        processing: "Standardizes noisy alert schemas into unified Incident Data contracts. Sanitizes credentials and validates data types (financial exposure, estimated customer impact).",
-        outputs: ["Normalized Incident Object", "Error Signature Hash", "Telemetry Vector Candidate"]
+        inputs: ["Live Error Alerts", "App Stack Traces", "Server Info"],
+        processing: "Cleans up the messy error data, removes sensitive passwords, and organizes it into a clear, standard format for the AI to understand.",
+        outputs: ["Clean Incident Data", "Unique Error ID"]
       },
-      codeSnippet: `class IncidentPayload(BaseModel):
+      codeSnippet: `// We instantly catch the error when a real service fails
+class IncidentPayload(BaseModel):
     service_name: str
     error_signature: str
-    stack_trace: Optional[str]
-    environment: str = "production"`
+    stack_trace: Optional[str]`
     },
     {
       id: 1,
-      title: "2. Vector RAG Matching",
-      short: "ChromaDB RAG Engine",
+      title: "2. Finding Past Fixes",
+      short: "Search Memory",
       icon: Database,
       color: "from-purple-500 to-indigo-500",
-      badge: "384-dim Embeddings",
-      summary: "Performs dense vector retrieval against historical banking incidents to discover past resolution patterns.",
-      techStack: ["ChromaDB Vector Store", "sentence-transformers / all-MiniLM-L6-v2", "Cosine Similarity Search"],
+      badge: "AI Memory (RAG)",
+      summary: "Sentinel checks its 'memory' to see if a similar issue has happened before. It reads past incident reports to find how it was fixed last time.",
+      techStack: ["ChromaDB Vector Store", "Similarity Search"],
       details: {
-        inputs: ["Error signature text", "Historical incident database", "Similarity Threshold (≥ 0.75)"],
-        processing: "Converts incident symptoms into high-dimensional vector embeddings. Executes k-NN similarity lookup in ChromaDB to retrieve top matching past postmortems.",
-        outputs: ["Top K Historical Matches", "Similarity Confidence Scores", "Historical Resolution Playbooks"]
+        inputs: ["Current Error Text", "Database of Past Outages"],
+        processing: "Uses AI to understand the *meaning* of the error, rather than just keyword matching, to find the most relevant past solutions.",
+        outputs: ["Top Similar Past Incidents", "Historical Fix Instructions"]
       },
-      codeSnippet: `matches = chroma_collection.query(
-    query_texts=[f"{alert.service_name} {alert.error_signature}"],
+      codeSnippet: `# Searching our AI memory for similar past issues
+matches = chroma_collection.query(
+    query_texts=[alert_description],
     n_results=3
-)
-# Returns cosine distance + past resolution steps`
+)`
     },
     {
       id: 2,
-      title: "3. Dependency Blast Radius",
-      short: "Graph Context Engine",
-      icon: GitBranch,
-      color: "from-amber-500 to-orange-500",
-      badge: "PostgreSQL & Redis",
-      summary: "Traverses inter-service dependencies to identify upstream root causes and downstream cascading impacts.",
-      techStack: ["PostgreSQL Recursive CTEs", "Redis Cache", "System Dependency Graph"],
-      details: {
-        inputs: ["Affected Service ID", "Live Microservice Graph", "MQ / Payment Gateway Maps"],
-        processing: "Evaluates cascading failure risk across payment APIs, message queues, and cert authority services. Maps downstream customer impact.",
-        outputs: ["Blast Radius Tree", "Upstream Suspect Nodes", "Affected Customer Exposure Estimate"]
-      },
-      codeSnippet: `WITH RECURSIVE service_tree AS (
-    SELECT parent_id, child_id FROM dependencies WHERE parent_id = :service_id
-    UNION SELECT d.parent_id, d.child_id FROM dependencies d
-    JOIN service_tree st ON d.parent_id = st.child_id
-) SELECT * FROM service_tree;`
-    },
-    {
-      id: 3,
-      title: "4. Gemini 3.1 Pro Multi-Agent Reasoning",
-      short: "Multi-Agent Swarm",
+      title: "3. Multi-Agent Analysis",
+      short: "AI Swarm Analysis",
       icon: Brain,
       color: "from-emerald-500 to-teal-500",
       badge: "Google Gemini 3.1 Pro",
-      summary: "Orchestrates specialized AI agents to synthesize root causes, verify code diffs, and generate remediation steps.",
-      techStack: ["Google Gemini 3.1 Pro", "Structured Chain-of-Thought", "Multi-Agent Coordinator"],
+      summary: "A team of specialized AI Agents work together to analyze the error, determine how much money it's costing, and write the code to fix it.",
+      techStack: ["Google Gemini 3.1 Pro", "Multi-Agent Swarm"],
       details: {
-        inputs: ["Telemetry Data", "RAG Historical Matches", "Dependency Graph Context"],
-        processing: "Multi-Agent Swarm execution: Triage Agent analyzes errors, Impact Agent calculates financial risk, Remediation Agent drafts patch & Jira ticket.",
-        outputs: ["Root Cause Analysis", "Confidence Score (0-100%)", "Draft Jira Ticket & Patch Proposal"]
+        inputs: ["Cleaned Error Data", "Past Fixes", "App Code"],
+        processing: "The Orchestrator assigns tasks: Triage Agent finds the root cause, Impact Agent calculates financial loss, and Remediation Agent writes the code patch.",
+        outputs: ["Root Cause Explanation", "Financial Loss Estimate", "Code Fix"]
       },
-      codeSnippet: `prompt = f"""
-You are Sentinel AI Senior Triage Engineer.
-Alert: {alert}
-RAG Matches: {rag_context}
-Graph Context: {graph_context}
-Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
+      codeSnippet: `prompt = """
+You are the Sentinel Triage Agent.
+Based on this error and past memory, 
+explain EXACTLY why the service crashed.
 """`
     },
     {
-      id: 4,
-      title: "5. Autonomous Triage & Action",
-      short: "Automated Ticket & Notify",
+      id: 3,
+      title: "4. Auto-Fix & Deploy",
+      short: "Fix & Raise PR",
       icon: Zap,
       color: "from-pink-500 to-rose-500",
-      badge: "Jira & Slack Ops",
-      summary: "Automatically dispatches Jira tickets, notifies on-call teams, and tracks financial MTTR savings.",
-      techStack: ["Jira REST API Client", "Slack Webhook Dispatcher", "PostgreSQL Metrics Engine"],
+      badge: "Live Git Ops",
+      summary: "The AI automatically applies the fix to the real source code, creates a Pull Request (PR) on GitHub, and alerts the engineering team on Slack/Jira.",
+      techStack: ["Git Operations", "Jira API", "Slack Webhooks"],
       details: {
-        inputs: ["Synthesized Incident Plan", "On-Call Routing Rules", "Jira Project Key"],
-        processing: "Creates rich Jira ticket with evidence links, alerts primary engineer via Slack, logs financial exposure & MTTR metrics to PostgreSQL.",
-        outputs: ["Jira Ticket ID", "Slack Notification Sent", "Dashboard Live Update"]
+        inputs: ["AI Code Patch", "GitHub Repository"],
+        processing: "Directly edits the buggy file in the real microservice, commits the change to your feature branch, and pushes it to GitHub for immediate review.",
+        outputs: ["GitHub Pull Request URL", "Slack Alert", "Jira Ticket"]
       },
-      codeSnippet: `jira_ticket = jira_client.create_issue({
-    "project": "SENT",
-    "summary": f"[Sentinel AI] {analysis.summary}",
-    "description": analysis.formatted_report
-})`
+      codeSnippet: `# Automatically fixing the real microservice code
+subprocess.run(["git", "commit", "-m", "AI Patch"])
+subprocess.run(["git", "push", "origin", "feature/ai-insights"])
+return {"pr_url": pr_url}`
     }
   ]
 
   const currentStage = pipelineStages[activeStage]
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 min-h-screen text-white">
+    <div className="p-8 max-w-7xl mx-auto space-y-12 min-h-screen text-white">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
@@ -140,31 +104,15 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                AI Architecture & Intelligence Flow
+                How Sentinel AI Works
                 <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
-                  Gemini 3.1 Pro + RAG
+                  Simplified View
                 </span>
               </h1>
               <p className="text-sm text-white/60 mt-1">
-                Technical breakdown of Sentinel&apos;s multi-agent reasoning, vector search, and dependency context pipeline.
+                A step-by-step guide to how Sentinel detects, analyzes, and automatically fixes your live applications.
               </p>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Tech Metrics */}
-        <div className="flex items-center gap-4 font-mono text-xs">
-          <div className="bg-[#0A0A0A] border border-white/10 px-4 py-2 rounded-lg">
-            <span className="text-white/40 block text-[10px] uppercase">Vector Model</span>
-            <span className="text-indigo-400 font-semibold">all-MiniLM-L6-v2</span>
-          </div>
-          <div className="bg-[#0A0A0A] border border-white/10 px-4 py-2 rounded-lg">
-            <span className="text-white/40 block text-[10px] uppercase">LLM Engine</span>
-            <span className="text-emerald-400 font-semibold">Gemini 3.1 Pro</span>
-          </div>
-          <div className="bg-[#0A0A0A] border border-white/10 px-4 py-2 rounded-lg">
-            <span className="text-white/40 block text-[10px] uppercase">Vector DB</span>
-            <span className="text-purple-400 font-semibold">ChromaDB</span>
           </div>
         </div>
       </div>
@@ -174,12 +122,12 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-sm font-semibold text-white/80 uppercase tracking-wider flex items-center gap-2">
             <Layers className="w-4 h-4 text-indigo-400" />
-            End-to-End AI Pipeline Flow
+            Step-by-Step AI Process
           </h2>
-          <span className="text-xs text-white/40">Click any stage to inspect technical specs</span>
+          <span className="text-xs text-white/40">Click any step to see details</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative z-10">
           {pipelineStages.map((stage, idx) => {
             const Icon = stage.icon
             const isActive = activeStage === idx
@@ -187,22 +135,22 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
               <button
                 key={stage.id}
                 onClick={() => setActiveStage(idx)}
-                className={`text-left p-4 rounded-xl border transition-all duration-200 relative group ${
+                className={\`text-left p-4 rounded-xl border transition-all duration-200 relative group \${
                   isActive 
                     ? 'bg-white/10 border-indigo-500/50 shadow-lg shadow-indigo-500/10 scale-[1.02]' 
                     : 'bg-[#050505] border-white/5 hover:border-white/20 hover:bg-white/[0.03]'
-                }`}
+                }\`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`p-2 rounded-lg bg-gradient-to-br ${stage.color} text-white shadow-md`}>
+                  <div className={\`p-2 rounded-lg bg-gradient-to-br \${stage.color} text-white shadow-md\`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                  <span className={\`text-[10px] font-mono px-2 py-0.5 rounded border \${
                     isActive 
                       ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' 
                       : 'bg-white/5 text-white/40 border-white/10'
-                  }`}>
-                    Stage {idx + 1}
+                  }\`}>
+                    Step {idx + 1}
                   </span>
                 </div>
 
@@ -226,11 +174,10 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
 
       {/* Selected Stage Technical Deep Dive */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Deep Spec details */}
         <div className="lg:col-span-2 bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 space-y-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${currentStage.color} text-white shadow-lg`}>
+              <div className={\`p-3 rounded-xl bg-gradient-to-br \${currentStage.color} text-white shadow-lg\`}>
                 <currentStage.icon className="w-6 h-6" />
               </div>
               <div>
@@ -254,7 +201,7 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
             <div className="p-3 rounded-xl bg-[#050505] border border-white/5 space-y-2">
               <span className="text-white/40 text-[10px] uppercase font-sans font-medium flex items-center gap-1.5">
-                <FileJson className="w-3.5 h-3.5 text-blue-400" /> Stage Inputs
+                <FileJson className="w-3.5 h-3.5 text-blue-400" /> Inputs
               </span>
               <ul className="space-y-1 text-white/70">
                 {currentStage.details.inputs.map((inp, idx) => (
@@ -265,7 +212,7 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
 
             <div className="p-3 rounded-xl bg-[#050505] border border-white/5 space-y-2">
               <span className="text-white/40 text-[10px] uppercase font-sans font-medium flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-purple-400" /> AI Execution
+                <Cpu className="w-3.5 h-3.5 text-purple-400" /> What happens?
               </span>
               <p className="text-white/70 text-[11px] leading-normal font-sans">
                 {currentStage.details.processing}
@@ -274,7 +221,7 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
 
             <div className="p-3 rounded-xl bg-[#050505] border border-white/5 space-y-2">
               <span className="text-white/40 text-[10px] uppercase font-sans font-medium flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Stage Outputs
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Outputs
               </span>
               <ul className="space-y-1 text-white/70">
                 {currentStage.details.outputs.map((out, idx) => (
@@ -284,11 +231,9 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
             </div>
           </div>
 
-          {/* Code Implementation Preview */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs text-white/50 font-mono">
-              <span className="flex items-center gap-1.5"><Code2 className="w-4 h-4 text-indigo-400" /> Python / Backend Implementation</span>
-              <span>sentinel-backend / core</span>
+              <span className="flex items-center gap-1.5"><Code2 className="w-4 h-4 text-indigo-400" /> Under the Hood Example</span>
             </div>
             <div className="bg-[#050505] border border-white/10 rounded-xl p-4 font-mono text-xs text-indigo-200/90 overflow-x-auto">
               <pre>{currentStage.codeSnippet}</pre>
@@ -296,41 +241,31 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
           </div>
         </div>
 
-        {/* Right 1 Col: Key Capabilities Summary for Panelists */}
+        {/* Meet the AI Agents Panel */}
         <div className="space-y-6">
           <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 space-y-4">
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
               <Bot className="w-4 h-4 text-emerald-400" />
-              AI Stack Architecture
+              Meet The Sentinel Agents
             </h3>
             
             <div className="space-y-3 text-xs">
               <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
+                <Brain className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-semibold text-white">The Orchestrator Agent</div>
+                  <div className="text-white/50 text-[11px] mt-0.5">
+                    The manager. It receives the error, talks to the Vector Database to find past memories, and delegates tasks to the other agents.
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
                 <Search className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-white">Dense Semantic Search (RAG)</div>
+                  <div className="font-semibold text-white">The Triage Agent</div>
                   <div className="text-white/50 text-[11px] mt-0.5">
-                    Embeds incidents into 384-dimensional space to find historical solutions even when wording differs.
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
-                <Brain className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-semibold text-white">Google Gemini 3.1 Pro LLM</div>
-                  <div className="text-white/50 text-[11px] mt-0.5">
-                    Utilizes deep reasoning to synthesize root cause analysis without hallucinating outside telemetry context.
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
-                <GitBranch className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-semibold text-white">Dependency Graph Correlation</div>
-                  <div className="text-white/50 text-[11px] mt-0.5">
-                    Analyzes inter-service links to differentiate root causes from secondary cascading outages.
+                    The detective. It reads the logs and stack traces to figure out exactly why the code crashed (the root cause).
                   </div>
                 </div>
               </div>
@@ -338,17 +273,79 @@ Provide: 1. Root Cause 2. Confidence 3. MTTR Saved
               <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
                 <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-white">Financial Exposure Estimation</div>
+                  <div className="font-semibold text-white">The Impact Agent</div>
                   <div className="text-white/50 text-[11px] mt-0.5">
-                    Dynamically computes dollars saved by reducing MTTR from 45 mins to under 2 seconds.
+                    The analyst. It calculates how many customers are affected and estimates the financial money lost per minute.
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#050505] border border-white/5 flex items-start gap-3">
+                <Code2 className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-semibold text-white">The Remediation Agent</div>
+                  <div className="text-white/50 text-[11px] mt-0.5">
+                    The developer. It actually writes the code to fix the bug in the real microservice.
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </div>
+
+      {/* NEW SECTION: What We Built / Integrated Flow */}
+      <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden mt-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Rocket className="w-5 h-5 text-rose-400" />
+            Hackathon Feature: Real Services & Auto-Deployment
+          </h2>
+        </div>
+        
+        <p className="text-sm text-white/70 mb-8 max-w-3xl">
+          We didn&apos;t just build a dashboard. We integrated Sentinel with <strong>real backend microservices</strong> (like Java and Python APIs). When Sentinel detects a bug, it actually edits the live codebase and pushes a GitHub Pull Request!
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+          <div className="p-5 rounded-xl bg-[#050505] border border-white/10 hover:border-white/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg bg-blue-500/10 text-blue-400">
+                <Server className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-white">Real Microservices</h3>
+            </div>
+            <p className="text-xs text-white/60 leading-relaxed">
+              We generated real working Java and Python microservices (e.g., Order Payment Service, Core Banking Gateway). These services have intentional bugs for Sentinel to catch.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-[#050505] border border-white/10 hover:border-white/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <Code2 className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-white">Live Code Patching</h3>
+            </div>
+            <p className="text-xs text-white/60 leading-relaxed">
+              Instead of just suggesting a fix in text, Sentinel&apos;s Python backend physically locates the buggy file on the server and applies the code patch directly to the file system.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-[#050505] border border-white/10 hover:border-white/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-400">
+                <GitPullRequest className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-white">Direct GitHub PRs</h3>
+            </div>
+            <p className="text-xs text-white/60 leading-relaxed">
+              Sentinel automatically commits the fixed file to the active <code>feature/ai-insights</code> branch and instantly pushes it to GitHub, ready for human review with a single click.
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   )
 }
