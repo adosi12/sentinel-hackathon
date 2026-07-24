@@ -22,6 +22,7 @@ export interface Incident {
   jira_content?: string
   slack_content?: string
   email_content?: string
+  resolved_at?: string
 }
 
 interface SentinelStore {
