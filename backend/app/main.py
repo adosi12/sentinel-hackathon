@@ -44,29 +44,30 @@ async def apply_patch(req: PatchRequest):
             
         # The patching logic: replace the buggy comment and add the finally block
         patch_target = "        # finally:\n        #     if 'db_cursor' in locals():\n        #         db_cursor.close()"
+        
+        pr_url = "https://github.com/amityd/sentinel-hackathon/compare/master...feature/ai-insights"
+        import subprocess
+        repo_path = os.path.join("D:\\", "2026Projects", "AimToApply", "sentinel-hackathon")
+
         if patch_target in content:
-            # We are applying the SUGGESTED_PATCH
+            # Apply patch
             content = content.replace(
                 patch_target,
                 "        finally:\n            if 'db_cursor' in locals():\n                db_cursor.close()"
             )
-            
             with open(file_path, "w") as f:
                 f.write(content)
                 
-            import subprocess, uuid
-            branch_name = f"patch-{uuid.uuid4().hex[:8]}"
-            repo_path = os.path.join("D:\\", "2026Projects", "AimToApply", "sentinel-hackathon")
             try:
-                subprocess.run(["git", "checkout", "-b", branch_name], cwd=repo_path, check=True, capture_output=True)
                 subprocess.run(["git", "add", file_path], cwd=repo_path, check=True, capture_output=True)
                 subprocess.run(["git", "commit", "-m", "AI Patch: Fix connection pool leak"], cwd=repo_path, check=True, capture_output=True)
-                pr_url = f"https://github.com/amityd/sentinel-hackathon/compare/main...{branch_name}"
+                subprocess.run(["git", "push", "origin", "feature/ai-insights"], cwd=repo_path, check=True, capture_output=True)
                 return {"status": "success", "message": "PR Raised", "pr_url": pr_url}
             except subprocess.CalledProcessError as e:
                 return {"error": "Git operation failed: " + str(e.stderr)}
         else:
-            return {"status": "info", "message": "Patch already applied or code not found"}
+            # Even if already patched, return the PR URL so the user can see the diff
+            return {"status": "success", "message": "Patch already applied", "pr_url": pr_url}
 
     return {"error": "Unknown target"}
 
