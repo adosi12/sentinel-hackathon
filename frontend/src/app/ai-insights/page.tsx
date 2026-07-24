@@ -135,21 +135,21 @@ return {"pr_url": pr_url}`
               <button
                 key={stage.id}
                 onClick={() => setActiveStage(idx)}
-                className={\`text-left p-4 rounded-xl border transition-all duration-200 relative group \${
+                className={`text-left p-4 rounded-xl border transition-all duration-200 relative group ${
                   isActive 
                     ? 'bg-white/10 border-indigo-500/50 shadow-lg shadow-indigo-500/10 scale-[1.02]' 
                     : 'bg-[#050505] border-white/5 hover:border-white/20 hover:bg-white/[0.03]'
-                }\`}
+                }`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div className={\`p-2 rounded-lg bg-gradient-to-br \${stage.color} text-white shadow-md\`}>
+                  <div className={`p-2 rounded-lg bg-gradient-to-br ${stage.color} text-white shadow-md`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className={\`text-[10px] font-mono px-2 py-0.5 rounded border \${
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
                     isActive 
                       ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' 
                       : 'bg-white/5 text-white/40 border-white/10'
-                  }\`}>
+                  }`}>
                     Step {idx + 1}
                   </span>
                 </div>
@@ -177,7 +177,7 @@ return {"pr_url": pr_url}`
         <div className="lg:col-span-2 bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 space-y-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className={\`p-3 rounded-xl bg-gradient-to-br \${currentStage.color} text-white shadow-lg\`}>
+              <div className={`p-3 rounded-xl bg-gradient-to-br ${currentStage.color} text-white shadow-lg`}>
                 <currentStage.icon className="w-6 h-6" />
               </div>
               <div>
